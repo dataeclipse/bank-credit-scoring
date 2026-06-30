@@ -43,9 +43,15 @@ ml = [
     "catboost>=1.2.10",
     "imbalanced-learn>=0.13",
     "optbinning>=0.20",
+    "mlflow>=2.18",
+    "optuna>=4.0",
+]
+# Объяснимость / справедливость / дрейф (Фаза 3+). Отдельный extra: shap тянет numba/llvmlite,
+# которые пока конфликтуют с numpy 2.x — разрешим в Фазе 3 (cap numpy либо обновлённый numba).
+explain = [
+    "pd-scoring[ml]",
     "shap>=0.46",
     "fairlearn>=0.12",
-    "mlflow>=2.18",
     "evidently>=0.5",
 ]
 
@@ -53,6 +59,7 @@ ml = [
 pd-scoring-serve = "pd_scoring.service.cli:serve"
 pd-scoring-ingest = "pd_scoring.data.download:main"
 pd-scoring-build-mart = "pd_scoring.features.build_mart:main"
+pd-scoring-train = "pd_scoring.models.train:main"
 
 # PEP 735 dev-группа. `uv sync` ставит её по умолчанию.
 [dependency-groups]
@@ -97,6 +104,8 @@ module = [
     "kaggle.*",
     "dotenv.*",
     "matplotlib.*",
+    "optuna.*",
+    "mlflow.*",
     "lightgbm.*",
     "xgboost.*",
     "catboost.*",
@@ -109,9 +118,17 @@ module = [
 ]
 ignore_missing_imports = true
 
+# pandas/joblib без py.typed-стабов — глушим import-untyped (strict без pandas-stubs шумит).
+[[tool.mypy.overrides]]
+module = ["pandas", "pandas.*", "joblib", "joblib.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --cov=pd_scoring --cov-report=term-missing"
+markers = [
+    "ml: тесты, требующие тяжёлого ML-стека (optbinning/lightgbm/catboost/optuna)",
+]
 
 [tool.coverage.run]
 source = ["pd_scoring"]

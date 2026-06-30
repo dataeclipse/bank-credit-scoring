@@ -37,5 +37,25 @@ jobs:
       - name: Mypy (strict)
         run: uv run mypy src
 
-      - name: Pytest
-        run: uv run pytest
+      - name: Pytest (data, без ml)
+        run: uv run pytest -m "not ml"
+
+  tests-ml:
+    name: tests (ml stack)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.11.25"
+          enable-cache: true
+          cache-dependency-glob: "01-credit-scoring-pd/uv.lock"
+
+      - name: Sync (+ тяжёлый ML-стек)
+        run: uv sync --frozen --extra ml
+
+      - name: Pytest (только ml)
+        run: uv run pytest -m ml

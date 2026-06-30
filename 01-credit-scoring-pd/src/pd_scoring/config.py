@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     # Внешние ресурсы — значения только из .env, в репозиторий не попадают.
     database_url: str | None = None
     mlflow_tracking_uri: str | None = None
+    mlflow_experiment: str = "pd-scoring-phase2"
 
     # Пути проекта.
     data_dir: Path = Path("data")

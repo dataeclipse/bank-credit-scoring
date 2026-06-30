@@ -24,11 +24,17 @@ kaggle.json
 
 # --- ML artifacts / tracking ---
 mlruns/
+mlartifacts/
+mlflow.db
+*.db
 artifacts/
 *.parquet
 *.pkl
 *.joblib
 *.cbm
+
+# --- Logs ---
+*.log
 
 # --- Caches ---
 .mypy_cache/

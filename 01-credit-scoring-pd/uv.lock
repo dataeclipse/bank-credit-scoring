@@ -534,6 +534,18 @@ wheels = [
 ]
 
 [[package]]
+name = "colorlog"
+version = "6.10.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a2/61/f083b5ac52e505dfc1c624eafbf8c7589a0d7f32daa398d2e7590efa5fda/colorlog-6.10.1.tar.gz", hash = "sha256:eb4ae5cb65fe7fec7773c2306061a8e63e02efc2c72eba9d27b0fa23c94f1321", size = 17162, upload-time = "2025-10-16T16:14:11.978Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6d/c1/e419ef3723a074172b68aaa89c9f3de486ed4c2399e2dbd8113a4fdcaf9e/colorlog-6.10.1-py3-none-any.whl", hash = "sha256:2d7e8348291948af66122cff006c9f8da6255d224e7cf8e37d8de2df3bad8c9c", size = 11743, upload-time = "2025-10-16T16:14:10.512Z" },
+]
+
+[[package]]
 name = "comm"
 version = "0.2.3"
 source = { registry = "https://pypi.org/simple" }
@@ -2634,6 +2646,24 @@ wheels = [
 ]
 
 [[package]]
+name = "optuna"
+version = "4.9.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "alembic" },
+    { name = "colorlog" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "pyyaml" },
+    { name = "sqlalchemy" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f4/aa/05f5e3f662cc96a4c478fc3446b8ed6359825a2b504ecb614a9ac84e4a4d/optuna-4.9.0.tar.gz", hash = "sha256:b322e5cbdf1655fb84c37646c4a7a1f391de1b47806bbe222e015825d0a82b87", size = 485834, upload-time = "2026-06-01T06:23:30.424Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ab/f3/e5fcd5d9b15771ed6dc10e3a7eeddc672e418f4f4c4653d216cc1d857e2d/optuna-4.9.0-py3-none-any.whl", hash = "sha256:f52f3be6148654850c92a5860d398fd88ec6b2c84ab68d9c3d07dcff02e7afee", size = 425553, upload-time = "2026-06-01T06:23:28.804Z" },
+]
+
+[[package]]
 name = "ortools"
 version = "9.10.4067"
 source = { registry = "https://pypi.org/simple" }
@@ -2816,7 +2846,7 @@ data = [
     { name = "scipy" },
     { name = "seaborn" },
 ]
-ml = [
+explain = [
     { name = "catboost" },
     { name = "evidently" },
     { name = "fairlearn" },
@@ -2829,6 +2859,7 @@ ml = [
     { name = "nbconvert" },
     { name = "numpy" },
     { name = "optbinning" },
+    { name = "optuna" },
     { name = "pandas" },
     { name = "polars" },
     { name = "pyarrow" },
@@ -2837,6 +2868,27 @@ ml = [
     { name = "scipy" },
     { name = "seaborn" },
     { name = "shap" },
+    { name = "xgboost" },
+]
+ml = [
+    { name = "catboost" },
+    { name = "imbalanced-learn" },
+    { name = "ipykernel" },
+    { name = "kaggle" },
+    { name = "lightgbm" },
+    { name = "matplotlib" },
+    { name = "mlflow" },
+    { name = "nbconvert" },
+    { name = "numpy" },
+    { name = "optbinning" },
+    { name = "optuna" },
+    { name = "pandas" },
+    { name = "polars" },
+    { name = "pyarrow" },
+    { name = "python-dotenv" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "seaborn" },
     { name = "xgboost" },
 ]
 
@@ -2853,8 +2905,8 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "catboost", marker = "extra == 'ml'", specifier = ">=1.2.10" },
-    { name = "evidently", marker = "extra == 'ml'", specifier = ">=0.5" },
-    { name = "fairlearn", marker = "extra == 'ml'", specifier = ">=0.12" },
+    { name = "evidently", marker = "extra == 'explain'", specifier = ">=0.5" },
+    { name = "fairlearn", marker = "extra == 'explain'", specifier = ">=0.12" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "imbalanced-learn", marker = "extra == 'ml'", specifier = ">=0.13" },
     { name = "ipykernel", marker = "extra == 'data'", specifier = ">=6.29" },
@@ -2865,8 +2917,10 @@ requires-dist = [
     { name = "nbconvert", marker = "extra == 'data'", specifier = ">=7.16" },
     { name = "numpy", marker = "extra == 'data'", specifier = ">=2.4" },
     { name = "optbinning", marker = "extra == 'ml'", specifier = ">=0.20" },
+    { name = "optuna", marker = "extra == 'ml'", specifier = ">=4.0" },
     { name = "pandas", marker = "extra == 'data'", specifier = ">=2.2" },
     { name = "pd-scoring", extras = ["data"], marker = "extra == 'ml'" },
+    { name = "pd-scoring", extras = ["ml"], marker = "extra == 'explain'" },
     { name = "polars", marker = "extra == 'data'", specifier = ">=1.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
     { name = "pyarrow", marker = "extra == 'data'", specifier = ">=17.0" },
@@ -2876,13 +2930,13 @@ requires-dist = [
     { name = "scikit-learn", marker = "extra == 'data'", specifier = ">=1.8.0" },
     { name = "scipy", marker = "extra == 'data'", specifier = ">=1.14" },
     { name = "seaborn", marker = "extra == 'data'", specifier = ">=0.13" },
-    { name = "shap", marker = "extra == 'ml'", specifier = ">=0.46" },
+    { name = "shap", marker = "extra == 'explain'", specifier = ">=0.46" },
     { name = "sqlalchemy", specifier = ">=2.0" },
     { name = "structlog", specifier = ">=24.4" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.34" },
     { name = "xgboost", marker = "extra == 'ml'", specifier = ">=3.2.0" },
 ]
-provides-extras = ["data", "ml"]
+provides-extras = ["data", "ml", "explain"]
 
 [package.metadata.requires-dev]
 dev = [
