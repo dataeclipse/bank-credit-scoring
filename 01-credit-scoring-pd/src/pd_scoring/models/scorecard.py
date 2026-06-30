@@ -1,10 +1,3 @@
-"""WOE-scorecard через optbinning.
-
-Главное про утечки: в CV биннинг (WOE/IV) обучается СТРОГО внутри каждого train-фолда и
-применяется к val-фолду — оценка scorecard честная, не оптимистичная. Финальная модель
-обучает биннинг на полном train и фиксированно применяет его к holdout.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -19,11 +12,10 @@ from sklearn.model_selection import StratifiedKFold
 from pd_scoring.models.dataset import ModelingData
 from pd_scoring.models.metrics import evaluate
 
-IV_MIN = 0.02  # классический порог отбора: IV < 0.02 — бесполезная фича
+IV_MIN = 0.02
 
 
 def _build_scorecard(feature_names: list[str], categorical: list[str], seed: int) -> Any:
-    """Собрать необученный Scorecard (биннинг + логистическая регрессия + PDO-шкала)."""
     binning_process = BinningProcess(
         variable_names=list(feature_names),
         categorical_variables=list(categorical),
@@ -40,12 +32,10 @@ def _build_scorecard(feature_names: list[str], categorical: list[str], seed: int
 
 
 def _default_proba(model: Any, features: pd.DataFrame) -> Any:
-    """Вероятность дефолта (класс 1) от scorecard."""
     return model.predict_proba(features)[:, 1]
 
 
 def cross_val_scorecard(data: ModelingData, *, seed: int, n_splits: int = 5) -> dict[str, float]:
-    """CV-оценка scorecard с биннингом, обученным ВНУТРИ каждого фолда (без оптимизма)."""
     cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
     x, y = data.X_train, data.y_train
     per_fold: list[dict[str, float]] = []
@@ -59,8 +49,6 @@ def cross_val_scorecard(data: ModelingData, *, seed: int, n_splits: int = 5) -> 
 
 @dataclass(frozen=True)
 class ScorecardResult:
-    """Финальный scorecard + метрики (CV и holdout) + артефакты (IV, points)."""
-
     model: Any
     cv_metrics: dict[str, float]
     holdout_metrics: dict[str, float]
@@ -70,7 +58,6 @@ class ScorecardResult:
 
 
 def fit_scorecard(data: ModelingData, *, seed: int) -> ScorecardResult:
-    """Честная CV-оценка + финальный scorecard (биннинг на полном train → holdout)."""
     cv_metrics = cross_val_scorecard(data, seed=seed)
 
     model = _build_scorecard(data.feature_names, data.categorical_features, seed)

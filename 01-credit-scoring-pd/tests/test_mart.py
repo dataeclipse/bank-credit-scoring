@@ -1,5 +1,3 @@
-"""Тесты витрины: схема соответствует колонкам, SK_ID_CURR уникален, чистка аномалии."""
-
 from __future__ import annotations
 
 import polars as pl
@@ -39,10 +37,10 @@ def test_application_features_basic() -> None:
     base, docs = build_application_features(train, test)
 
     assert base["SK_ID_CURR"].n_unique() == base.height == 6
-    # engineered + флаг аномалии присутствуют
+
     for col in ("CREDIT_INCOME_RATIO", "ANNUITY_INCOME_RATIO", "DAYS_EMPLOYED_ANOM"):
         assert col in base.columns
-    # TARGET у test-строк null (нет утечки разметки в test)
+
     assert base.filter(pl.col("is_train").not_())["TARGET"].null_count() == 2
     assert docs
 
@@ -53,7 +51,7 @@ def test_days_employed_anomaly_cleaned() -> None:
     base, _ = build_application_features(train, test)
     row = base.filter(pl.col("SK_ID_CURR") == 1)
     assert row.select("DAYS_EMPLOYED_ANOM").item() == 1
-    assert row.select("DAYS_EMPLOYED").item() is None  # аномалия вычищена в null
+    assert row.select("DAYS_EMPLOYED").item() is None
 
 
 def test_schema_matches_columns() -> None:
@@ -66,8 +64,8 @@ def test_schema_matches_columns() -> None:
 
     assert schema["n_features"] == len(cols)
     assert {f["name"] for f in schema["features"]} == cols
-    # ключ/таргет/служебные — не фичи
+
     for non_feature in ("SK_ID_CURR", "TARGET", "is_train"):
         assert non_feature not in cols
-    # каждая фича документирована (есть непустое описание)
+
     assert all(f["description"] for f in schema["features"])

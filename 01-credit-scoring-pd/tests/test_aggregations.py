@@ -1,5 +1,3 @@
-"""Тесты client-level агрегаций: нет дублей по SK_ID_CURR, нет утечки TARGET, верные значения."""
-
 from __future__ import annotations
 
 import polars as pl
@@ -21,8 +19,8 @@ def _val(frame: pl.DataFrame, sk_id: int, column: str) -> float:
 
 def _assert_client_level(result: AggResult) -> None:
     frame = result.frame
-    assert frame["SK_ID_CURR"].n_unique() == frame.height  # нет дублей клиента
-    assert "TARGET" not in frame.columns  # нет утечки таргета
+    assert frame["SK_ID_CURR"].n_unique() == frame.height
+    assert "TARGET" not in frame.columns
 
 
 def test_bureau_with_balance() -> None:
@@ -56,7 +54,7 @@ def test_bureau_with_balance() -> None:
     assert _val(result.frame, 1, "BUREAU_ACTIVE_COUNT") == 1
     assert _val(result.frame, 1, "BUREAU_CLOSED_COUNT") == 1
     assert _val(result.frame, 1, "BUREAU_AMT_CREDIT_SUM_SUM") == 3000.0
-    # DPD-месяцы: bureau 10 -> 1 (status '1'), bureau 11 -> 0, итог по клиенту 1 = 1
+
     assert _val(result.frame, 1, "BUREAU_BB_DPD_COUNT_SUM") == 1
     assert _val(result.frame, 2, "BUREAU_BB_DPD_COUNT_SUM") == 1
 
@@ -95,8 +93,8 @@ def test_installments() -> None:
     result = aggregate_installments(installments)
     _assert_client_level(result)
     assert _val(result.frame, 1, "INST_COUNT") == 2
-    assert _val(result.frame, 1, "INST_PAYMENT_DIFF_SUM") == 20.0  # недоплата 0 + 20
-    assert _val(result.frame, 1, "INST_DPD_MAX") == 2  # просрочка row1 = 2 дня
+    assert _val(result.frame, 1, "INST_PAYMENT_DIFF_SUM") == 20.0
+    assert _val(result.frame, 1, "INST_DPD_MAX") == 2
 
 
 def test_pos() -> None:
@@ -131,4 +129,4 @@ def test_credit_card() -> None:
     result = aggregate_credit_card(credit_card)
     _assert_client_level(result)
     assert _val(result.frame, 1, "CC_COUNT") == 1
-    assert _val(result.frame, 1, "CC_UTILIZATION_MEAN") == 0.5  # 500 / 1000
+    assert _val(result.frame, 1, "CC_UTILIZATION_MEAN") == 0.5

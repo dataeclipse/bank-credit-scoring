@@ -1,5 +1,3 @@
-"""Тест отсутствия утечки в CV: фолды не пересекаются, покрывают train, holdout вне фолдов."""
-
 from __future__ import annotations
 
 import numpy as np
@@ -15,7 +13,7 @@ def test_cv_folds_disjoint_cover_train_exclude_holdout() -> None:
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     seen_val: set[int] = set()
     for tr, va in cv.split(train_idx, y):
-        assert set(tr).isdisjoint(set(va))  # train/val фолда не пересекаются
-        assert set(va).isdisjoint(holdout_idx)  # holdout не попадает в val
+        assert set(tr).isdisjoint(set(va))
+        assert set(va).isdisjoint(holdout_idx)
         seen_val.update(int(i) for i in va)
-    assert seen_val == set(range(n_train))  # val-фолды покрывают весь train
+    assert seen_val == set(range(n_train))

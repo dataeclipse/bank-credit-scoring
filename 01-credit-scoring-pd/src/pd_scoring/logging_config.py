@@ -1,5 +1,3 @@
-"""Структурное логирование через structlog (JSON в stdout)."""
-
 from __future__ import annotations
 
 import logging
@@ -9,8 +7,6 @@ import structlog
 
 
 def configure_logging(level: str = "INFO") -> None:
-    """Настроить structlog и stdlib logging на JSON-вывод в stdout."""
-    # На Windows консоль по умолчанию cp1252 — принудительно UTF-8, чтобы не падать на кириллице.
     for stream in (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
         if callable(reconfigure):
@@ -33,6 +29,5 @@ def configure_logging(level: str = "INFO") -> None:
 
 
 def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
-    """Вернуть структурный логгер."""
     logger: structlog.stdlib.BoundLogger = structlog.get_logger(name)
     return logger

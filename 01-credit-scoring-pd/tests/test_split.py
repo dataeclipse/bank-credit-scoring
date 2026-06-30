@@ -1,5 +1,3 @@
-"""Тесты split: детерминизм по сиду, отсутствие пересечения и утечки, стратификация."""
-
 from __future__ import annotations
 
 import polars as pl
@@ -34,14 +32,14 @@ def test_split_disjoint_and_complete() -> None:
 
 
 def test_split_excludes_unlabeled() -> None:
-    df = _labeled(100, n_unlabeled=10)  # SK_ID_CURR 101..110 без TARGET
+    df = _labeled(100, n_unlabeled=10)
     result = make_split(df, seed=42)
     all_ids = set(result.train_ids) | set(result.test_ids)
-    assert all_ids == set(range(1, 101))  # неразмеченные строки исключены
+    assert all_ids == set(range(1, 101))
 
 
 def test_split_stratified() -> None:
-    df = _labeled(100)  # 50% дефолтов
+    df = _labeled(100)
     result = make_split(df, seed=42, test_size=0.2)
     train_df = df.filter(pl.col("SK_ID_CURR").is_in(result.train_ids))
     rate = train_df.select(pl.col("TARGET").mean()).item()

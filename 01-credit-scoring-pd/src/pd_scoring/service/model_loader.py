@@ -1,9 +1,3 @@
-"""Загрузка ScoringService. Тяжёлые импорты — ленивые (вызывается на старте сервиса).
-
-Две ветки: локальный joblib (контейнер, lean serve-стек, без mlflow) ИЛИ MLflow registry по
-алиасу (dev). Управляется ``PD_MODEL_URI``.
-"""
-
 from __future__ import annotations
 
 import json
@@ -22,7 +16,6 @@ def _schema(path: Path) -> tuple[dict[str, str], list[str]]:
 
 
 def _load_model(settings: Settings) -> tuple[Any, str]:
-    """Локальный joblib (PD_MODEL_URI) или MLflow registry по алиасу."""
     if settings.model_uri:
         import joblib
 
@@ -45,7 +38,6 @@ def _load_model(settings: Settings) -> tuple[Any, str]:
 def load_scoring_service(
     settings: Settings, *, schema_path: Path = Path("docs/feature_schema.json")
 ) -> ScoringService:
-    """Загрузить прод-LightGBM (+ опц. калибратор) и метаданные фич → ScoringService."""
     model, version = _load_model(settings)
 
     calibrator = None

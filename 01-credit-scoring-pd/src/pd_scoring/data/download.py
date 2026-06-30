@@ -1,10 +1,3 @@
-"""Загрузка датасета Home Credit Default Risk через официальный Kaggle API.
-
-Идемпотентно (есть файл — не качаем повторно). По умолчанию печатает манифест (dry-run);
-реально скачивает только с флагом ``--yes``. Креды — из окружения/.env
-(``KAGGLE_USERNAME`` / ``KAGGLE_KEY``); требуется принятие правил соревнования на kaggle.com.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -30,7 +23,6 @@ REQUIRED_FILES: tuple[str, ...] = (
 
 
 def _load_env() -> None:
-    """Подгрузить .env в окружение (для KAGGLE_USERNAME/KAGGLE_KEY)."""
     try:
         from dotenv import load_dotenv
     except ImportError:
@@ -39,7 +31,6 @@ def _load_env() -> None:
 
 
 def _authenticate() -> Any:
-    """Аутентифицироваться в Kaggle (lazy-import после загрузки .env)."""
     _load_env()
     from kaggle.api.kaggle_api_extended import KaggleApi
 
@@ -49,7 +40,6 @@ def _authenticate() -> Any:
 
 
 def _human(num_bytes: int) -> str:
-    """Человекочитаемый размер."""
     size = float(num_bytes)
     for unit in ("B", "KB", "MB", "GB"):
         if size < 1024 or unit == "GB":
@@ -59,7 +49,6 @@ def _human(num_bytes: int) -> str:
 
 
 def list_manifest(api: Any) -> list[tuple[str, int]]:
-    """Список (имя, размер) файлов соревнования."""
     files = api.competition_list_files(COMPETITION).files
     manifest: list[tuple[str, int]] = []
     for item in files:
@@ -70,14 +59,13 @@ def list_manifest(api: Any) -> list[tuple[str, int]]:
 
 
 def download_file(api: Any, name: str, raw_dir: Path, log: Any) -> bool:
-    """Скачать один файл с кэшем. Возвращает True, если реально качали."""
     target = raw_dir / name
     if target.exists() and target.stat().st_size > 0:
         log.info("cached", file=name)
         return False
     raw_dir.mkdir(parents=True, exist_ok=True)
     api.competition_download_file(COMPETITION, name, path=str(raw_dir), force=False, quiet=True)
-    # Kaggle часто отдаёт файл как <name>.zip — распакуем и удалим архив.
+
     zip_path = raw_dir / f"{name}.zip"
     if zip_path.exists():
         with zipfile.ZipFile(zip_path) as archive:
@@ -88,7 +76,6 @@ def download_file(api: Any, name: str, raw_dir: Path, log: Any) -> bool:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """CLI ``pd-scoring-ingest``: манифест (dry-run) или загрузка с ``--yes``."""
     parser = argparse.ArgumentParser(description="Download Home Credit dataset via Kaggle API.")
     parser.add_argument(
         "--yes", action="store_true", help="реально скачать (иначе только манифест)"

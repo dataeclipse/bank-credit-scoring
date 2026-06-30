@@ -1,9 +1,3 @@
-"""CLI ``pd-scoring-export-model``: запечь прод-LightGBM из MLflow registry в deploy/model (joblib).
-
-Делает образ самодостаточным: контейнер грузит модель локально (joblib), без mlflow. Запускать
-после обучения (Фаза 2) на машине с MLflow registry. deploy/ — в .gitignore.
-"""
-
 from __future__ import annotations
 
 import argparse

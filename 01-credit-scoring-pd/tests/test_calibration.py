@@ -1,5 +1,3 @@
-"""Тесты калибровки (маркер ml): нет утечки, ECE не ухудшается."""
-
 from __future__ import annotations
 
 import pytest
@@ -34,8 +32,8 @@ def _data() -> ModelingData:
 def test_calibration_no_leakage() -> None:
     data = _data()
     x_fit, x_calib, _, _ = split_fit_calib(data, seed=42, calib_size=0.2)
-    assert set(x_fit.index).isdisjoint(set(x_calib.index))  # fit и calib не пересекаются
-    assert len(x_fit) + len(x_calib) == len(data.X_train)  # вместе = train (holdout отдельный)
+    assert set(x_fit.index).isdisjoint(set(x_calib.index))
+    assert len(x_fit) + len(x_calib) == len(data.X_train)
 
 
 @pytest.mark.ml

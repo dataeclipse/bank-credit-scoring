@@ -1,5 +1,3 @@
-"""MLflow: sqlite-бэкенд (нужен для Model Registry), логирование и регистрация кандидатов."""
-
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -18,13 +16,11 @@ DEFAULT_TRACKING_URI = "sqlite:///mlflow.db"
 
 
 def setup_mlflow(settings: Settings) -> None:
-    """Настроить tracking URI (sqlite по умолчанию — иначе registry недоступен) и эксперимент."""
     mlflow.set_tracking_uri(settings.mlflow_tracking_uri or DEFAULT_TRACKING_URI)
     mlflow.set_experiment(settings.mlflow_experiment)
 
 
 def _flatten(metrics: dict[str, dict[str, float]]) -> dict[str, float]:
-    """{'holdout': {...}, 'cv': {...}} → {'holdout_roc_auc': ..., 'cv_gini': ...}."""
     return {
         f"{group}_{name}": value
         for group, block in metrics.items()
@@ -33,7 +29,6 @@ def _flatten(metrics: dict[str, dict[str, float]]) -> dict[str, float]:
 
 
 def _log_model(log_fn: Callable[..., Any], model: Any, registered_name: str | None) -> None:
-    """Совместимость API mlflow 2/3: name= (3.x) с откатом на artifact_path= (2.x)."""
     try:
         log_fn(model, name="model", registered_model_name=registered_name)
     except TypeError:
@@ -41,8 +36,6 @@ def _log_model(log_fn: Callable[..., Any], model: Any, registered_name: str | No
 
 
 class ScorecardModel(mlflow.pyfunc.PythonModel):  # type: ignore[misc,name-defined]
-    """pyfunc-обёртка scorecard → вероятность дефолта (для регистрации в registry)."""
-
     def load_context(self, context: Any) -> None:
         self._model = joblib.load(context.artifacts["scorecard"])
 
@@ -61,7 +54,6 @@ def log_candidate(
     scorecard_path: Path | None = None,
     register: bool = True,
 ) -> None:
-    """Залогировать один кандидат (params/metrics/artifacts) и зарегистрировать в registry."""
     registered = f"pd-{run_name}" if register else None
     with mlflow.start_run(run_name=run_name):
         mlflow.log_params(params)

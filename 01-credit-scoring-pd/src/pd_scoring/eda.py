@@ -1,8 +1,3 @@
-"""EDA-функции (чистые, тестируемые) над витриной/сырыми данными.
-
-Без графики — возвращают данные; визуализация живёт в notebooks/01_eda.ipynb.
-"""
-
 from __future__ import annotations
 
 import polars as pl
@@ -10,7 +5,6 @@ import polars.selectors as cs
 
 
 def target_rate(df: pl.DataFrame, target: str = "TARGET") -> dict[str, float]:
-    """Доля дефолтов (баланс классов) по размеченным строкам."""
     labeled = df.filter(pl.col(target).is_not_null())
     n = labeled.height
     positives = int(labeled.select(pl.col(target).sum()).item()) if n else 0
@@ -22,7 +16,6 @@ def target_rate(df: pl.DataFrame, target: str = "TARGET") -> dict[str, float]:
 
 
 def missingness(df: pl.DataFrame) -> pl.DataFrame:
-    """Таблица пропусков по колонкам: null_count и доля, отсортировано по убыванию."""
     n = df.height
     null_counts = df.null_count()
     records = [
@@ -37,14 +30,12 @@ def missingness(df: pl.DataFrame) -> pl.DataFrame:
 
 
 def numeric_summary(df: pl.DataFrame, columns: list[str]) -> pl.DataFrame:
-    """Описательная статистика по числовым колонкам (describe)."""
     return df.select(columns).describe()
 
 
 def top_correlations(
     df: pl.DataFrame, target: str = "TARGET", k: int = 15
 ) -> list[tuple[str, float]]:
-    """Топ-k числовых фич по модулю корреляции Пирсона с таргетом."""
     labeled = df.filter(pl.col(target).is_not_null())
     numeric_cols = [c for c in labeled.select(cs.numeric()).columns if c != target]
     correlations: list[tuple[str, float]] = []
@@ -59,7 +50,6 @@ def top_correlations(
 def days_employed_anomaly(
     df: pl.DataFrame, column: str = "DAYS_EMPLOYED", anomaly: int = 365243
 ) -> dict[str, float]:
-    """Доля известной аномалии DAYS_EMPLOYED==365243 (заглушка для пенсионеров/безработных)."""
     if column not in df.columns:
         return {"anomaly_count": 0.0, "anomaly_frac": 0.0}
     n = df.height

@@ -1,5 +1,3 @@
-"""Pydantic-схемы /score: валидируемый вход (application-поля) и выход."""
-
 from __future__ import annotations
 
 from typing import Literal
@@ -8,8 +6,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class ApplicationIn(BaseModel):
-    """Поля кредитной заявки. Агрегаты бюро/истории НЕ требуются — заполняются null."""
-
     model_config = ConfigDict(extra="forbid")
 
     AMT_INCOME_TOTAL: float = Field(gt=0, description="совокупный доход")
@@ -38,8 +34,6 @@ class ApplicationIn(BaseModel):
 
 
 class ReasonCodeOut(BaseModel):
-    """Reason code в ответе: фича, вклад SHAP, направление и человекочитаемое описание."""
-
     feature: str
     contribution: float
     direction: Literal["increases", "decreases"]
@@ -47,8 +41,6 @@ class ReasonCodeOut(BaseModel):
 
 
 class ScoreOut(BaseModel):
-    """Ответ /score: PD, балл, риск-сегмент, топ-3 reason codes, версия модели."""
-
     model_config = ConfigDict(protected_namespaces=())
 
     pd: float = Field(description="вероятность дефолта (0..1)")

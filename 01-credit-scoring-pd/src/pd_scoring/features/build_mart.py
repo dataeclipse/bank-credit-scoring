@@ -1,10 +1,3 @@
-"""Сборка единой client-level витрины фичей Home Credit.
-
-Пайплайн: application (curated + engineered) → join client-level агрегатов всех дочерних
-таблиц по SK_ID_CURR → витрина parquet + версионируемая схема + словарь данных + split.
-Аномалия DAYS_EMPLOYED==365243 (заглушка пенсионеров) чистится в null с флагом DAYS_EMPLOYED_ANOM.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -37,7 +30,7 @@ from pd_scoring.seeds import set_seeds
 
 DAYS_EMPLOYED_ANOMALY = 365243
 
-# Curated raw application-фичи: (колонка, описание). Источник истины и для select, и для словаря.
+
 _APP_RAW: tuple[tuple[str, str], ...] = (
     ("NAME_CONTRACT_TYPE", "тип кредита (cash/revolving)"),
     ("CODE_GENDER", "пол клиента"),
@@ -75,7 +68,7 @@ _APP_RAW: tuple[tuple[str, str], ...] = (
     ("ORGANIZATION_TYPE", "тип организации-работодателя"),
 )
 
-# Engineered application-фичи: (имя, описание).
+
 _APP_ENGINEERED: tuple[tuple[str, str], ...] = (
     ("DAYS_EMPLOYED_ANOM", "флаг аномалии стажа (DAYS_EMPLOYED==365243)"),
     ("CREDIT_INCOME_RATIO", "сумма кредита / доход"),
@@ -93,7 +86,6 @@ APPLICATION_DOCS: list[FeatureDoc] = [
 
 
 def _prepare_application(df: pl.DataFrame, *, is_train: bool) -> pl.DataFrame:
-    """Curated application-колонки + чистка аномалии + engineered ratios + флаг is_train."""
     keep = ["SK_ID_CURR", *[c for c in _APP_KEEP if c in df.columns]]
     out = df.select(keep)
     out = out.with_columns(
@@ -119,7 +111,6 @@ def _prepare_application(df: pl.DataFrame, *, is_train: bool) -> pl.DataFrame:
 def build_application_features(
     app_train: pl.DataFrame, app_test: pl.DataFrame
 ) -> tuple[pl.DataFrame, list[FeatureDoc]]:
-    """Базовый client-level фрейм из application_train/test (TARGET=null для test)."""
     train = _prepare_application(app_train, is_train=True).join(
         app_train.select("SK_ID_CURR", pl.col("TARGET").cast(pl.Int8)),
         on="SK_ID_CURR",
@@ -133,7 +124,6 @@ def build_application_features(
 
 
 def build_mart(raw_dir: Path) -> tuple[pl.DataFrame, list[FeatureDoc]]:
-    """Собрать витрину: application + все client-level агрегаты, join по SK_ID_CURR."""
     set_seeds(get_settings().random_seed)
     mart, docs = build_application_features(
         load_table(raw_dir, "application_train"),
@@ -158,14 +148,12 @@ def build_mart(raw_dir: Path) -> tuple[pl.DataFrame, list[FeatureDoc]]:
 def write_mart_to_postgres(
     mart: pl.DataFrame, database_url: str, table: str = "feature_mart"
 ) -> None:
-    """Записать витрину в PostgreSQL (опционально; требует PD_DATABASE_URL)."""
     mart.write_database(
         table_name=table, connection=database_url, if_table_exists="replace", engine="sqlalchemy"
     )
 
 
 def main(argv: list[str] | None = None) -> int:
-    """CLI ``pd-scoring-build-mart``: собрать витрину, записать parquet/схему/словарь/split."""
     parser = argparse.ArgumentParser(description="Build client-level feature mart.")
     parser.add_argument(
         "--raw-dir", default=None, help="каталог с CSV (по умолчанию <data_dir>/raw)"

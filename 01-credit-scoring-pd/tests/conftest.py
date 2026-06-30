@@ -1,5 +1,3 @@
-"""Общие фикстуры pytest."""
-
 from __future__ import annotations
 
 import pytest
@@ -10,5 +8,4 @@ from pd_scoring.service.app import app
 
 @pytest.fixture
 def client() -> TestClient:
-    """HTTP-клиент для FastAPI-приложения."""
     return TestClient(app)

@@ -1,9 +1,3 @@
-"""ScoringService: одна заявка → PD, балл, риск-сегмент, топ-3 reason codes.
-
-Строит полную строку из 120 фич модели (переданные поля + engineered ratios, остальное null),
-предсказывает PD (опц. калибровка), масштабирует в балл, сегментирует, объясняет через SHAP.
-"""
-
 from __future__ import annotations
 
 from typing import Any
@@ -26,8 +20,6 @@ def _safe_div(numerator: Any, denominator: Any) -> float | None:
 
 
 class ScoringService:
-    """Инкапсулирует прод-модель, опц. калибратор и метаданные фич (порядок, категориальные)."""
-
     def __init__(
         self,
         model: Any,
@@ -58,12 +50,11 @@ class ScoringService:
         }
 
     def build_feature_row(self, app: dict[str, Any]) -> pd.DataFrame:
-        """Полная 120-фич строка в порядке модели; категориальные → category, остальное → float."""
         values: dict[str, Any] = dict.fromkeys(self.feature_order)
         for key, value in app.items():
             if key in values:
                 values[key] = value
-        # Аномалия стажа: 365243 → null + флаг (как в витрине Фазы 1).
+
         days_employed = (
             None if app.get("DAYS_EMPLOYED") == DAYS_EMPLOYED_ANOMALY else app.get("DAYS_EMPLOYED")
         )
@@ -82,7 +73,6 @@ class ScoringService:
         return frame
 
     def score(self, app: dict[str, Any]) -> ScoreOut:
-        """Скоринг одной заявки."""
         frame = self.build_feature_row(app)
         pd_value = float(self.model.predict_proba(frame)[:, 1][0])
         if self.calibrator is not None:
@@ -96,8 +86,7 @@ class ScoringService:
             base_odds=settings.score_base_odds,
         )
         segment = assign_segment(pd_value, low=settings.segment_low, high=settings.segment_high)
-        # Нативный LightGBM TreeSHAP (pred_contrib) — на порядок быстрее shap.TreeExplainer;
-        # последняя колонка — base value, отбрасываем.
+
         contributions = np.asarray(self.model.booster_.predict(frame, pred_contrib=True))[0][:-1]
         codes = reason_codes_from_shap(
             self.feature_order,

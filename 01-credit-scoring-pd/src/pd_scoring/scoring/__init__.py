@@ -1,5 +1,3 @@
-"""Скоринг: PD → балл → риск-сегмент → reason codes."""
-
 from __future__ import annotations
 
 import math
@@ -13,8 +11,6 @@ Direction = Literal["increases", "decreases"]
 
 
 class RiskSegment(StrEnum):
-    """Риск-сегмент заявки."""
-
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -22,8 +18,6 @@ class RiskSegment(StrEnum):
 
 @dataclass(frozen=True)
 class ReasonCode:
-    """Причина решения — вклад фактора (SHAP). direction: increases|decreases риск."""
-
     feature: str
     contribution: float
     description: str
@@ -32,8 +26,6 @@ class ReasonCode:
 
 @dataclass(frozen=True)
 class ScoringResult:
-    """Результат скоринга кредитной заявки."""
-
     pd: float
     score: int
     segment: RiskSegment
@@ -41,11 +33,6 @@ class ScoringResult:
 
 
 def pd_to_score(pd: float, *, base_score: int = 600, pdo: int = 50, base_odds: float = 50.0) -> int:
-    """PD → скоринговый балл по PDO/odds-шкале (выше балл = ниже риск).
-
-    factor = PDO/ln2; offset = base_score − factor·ln(base_odds);
-    score = offset + factor·ln(odds_good), где odds_good = (1−PD)/PD.
-    """
     pd = min(max(pd, _EPS), 1.0 - _EPS)
     factor = pdo / math.log(2.0)
     offset = base_score - factor * math.log(base_odds)
@@ -53,7 +40,6 @@ def pd_to_score(pd: float, *, base_score: int = 600, pdo: int = 50, base_odds: f
 
 
 def assign_segment(pd: float, *, low: float = 0.05, high: float = 0.15) -> RiskSegment:
-    """Назначить риск-сегмент по PD: <low → low, <high → medium, иначе high."""
     if pd < low:
         return RiskSegment.LOW
     if pd < high:

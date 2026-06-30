@@ -1,9 +1,3 @@
-"""Подбор гиперпараметров GBDT через Optuna (TPE, фиксированный seed, K-fold CV, early stopping).
-
-Тюнинг гоняет CV строго на train (holdout не виден); early stopping — на val самого фолда,
-поэтому утечки нет. Финальная оценка моделей — на общем holdout (см. train.py).
-"""
-
 from __future__ import annotations
 
 from typing import Any
@@ -20,8 +14,8 @@ from pd_scoring.models.gbdt import EARLY_STOP, to_catboost_frame, to_lightgbm_fr
 from pd_scoring.models.metrics import roc_auc
 
 DEFAULT_TRIALS = 30
-TUNING_FOLDS = 3  # для HPO достаточно 3 фолдов; финальная оценка — на holdout
-TUNING_ITERS = 600  # cap деревьев для HPO; финальные модели учатся до 3000 с early stopping
+TUNING_FOLDS = 3
+TUNING_ITERS = 600
 
 
 def _cv(seed: int) -> Any:
@@ -63,7 +57,7 @@ def _mean_cv_auc_catboost(
             random_seed=seed,
             eval_metric="AUC",
             cat_features=categorical,
-            max_ctr_complexity=1,  # без комбинаций категориальных — кратно быстрее
+            max_ctr_complexity=1,
             task_type=task_type,
             verbose=0,
             allow_writing_files=False,
@@ -81,7 +75,6 @@ def _mean_cv_auc_catboost(
 def tune_lightgbm(
     data: ModelingData, *, seed: int, n_trials: int = DEFAULT_TRIALS
 ) -> dict[str, Any]:
-    """TPE-поиск гиперпараметров LightGBM по mean CV ROC-AUC."""
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     x, y = to_lightgbm_frame(data.X_train, data.categorical_features), data.y_train
 
@@ -105,7 +98,6 @@ def tune_lightgbm(
 def tune_catboost(
     data: ModelingData, *, seed: int, n_trials: int = DEFAULT_TRIALS, task_type: str = "CPU"
 ) -> dict[str, Any]:
-    """TPE-поиск гиперпараметров CatBoost по mean CV ROC-AUC."""
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     x, y = to_catboost_frame(data.X_train, data.categorical_features), data.y_train
 

@@ -1,5 +1,3 @@
-"""Тесты мониторинга дрейфа (data): PSI и drift_report ловят сдвиг распределения."""
-
 from __future__ import annotations
 
 import numpy as np
@@ -19,7 +17,7 @@ def test_psi_no_drift_low() -> None:
 def test_psi_shift_high() -> None:
     rng = np.random.default_rng(0)
     expected = rng.normal(size=5000)
-    actual = rng.normal(loc=1.5, size=5000)  # сдвиг среднего
+    actual = rng.normal(loc=1.5, size=5000)
     assert population_stability_index(expected, actual) > 0.2
 
 
@@ -30,7 +28,7 @@ def test_drift_report_flags_shifted_features() -> None:
     )
     current = apply_demo_drift(reference)
     report = drift_report(reference, current, threshold=0.2)
-    assert "EXT_SOURCE_2" in report.alerts  # сдвинутая фича попала в алерт
+    assert "EXT_SOURCE_2" in report.alerts
     assert report.feature_psi["EXT_SOURCE_2"] > 0.2
 
 

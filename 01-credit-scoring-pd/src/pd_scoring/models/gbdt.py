@@ -1,9 +1,3 @@
-"""LightGBM и CatBoost: подготовка фреймов, обучение с early stopping, holdout-предсказание.
-
-LightGBM — категориальные как pandas `category` (нативная поддержка, пропуски ок).
-CatBoost — нативные категориальные (str без NaN) и пропуски в числовых.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -22,24 +16,19 @@ EARLY_STOP = 100
 
 
 def to_lightgbm_frame(x: pd.DataFrame, categorical: list[str]) -> pd.DataFrame:
-    """Категориальные → pandas category (LightGBM детектит нативно)."""
     return x.assign(**{c: x[c].astype("category") for c in categorical})
 
 
 def to_catboost_frame(x: pd.DataFrame, categorical: list[str]) -> pd.DataFrame:
-    """Категориальные → str без NaN (CatBoost требует строковые без пропусков)."""
     return x.assign(**{c: x[c].astype("object").fillna(CAT_NA).astype(str) for c in categorical})
 
 
 def _early_val(x: pd.DataFrame, y: pd.Series, seed: int) -> Any:
-    """Отложить из train небольшой стратифицированный val для early stopping."""
     return train_test_split(x, y, test_size=0.15, stratify=y, random_state=seed)
 
 
 @dataclass(frozen=True)
 class GbdtResult:
-    """Обученная модель + holdout-предсказание/метрики + best_iteration."""
-
     model: Any
     holdout_proba: Any
     holdout_metrics: dict[str, float]
@@ -47,7 +36,6 @@ class GbdtResult:
 
 
 def train_lightgbm(data: ModelingData, params: dict[str, Any], *, seed: int) -> GbdtResult:
-    """Рефит LightGBM на полном train (early stopping на отложенном val) → holdout."""
     x = to_lightgbm_frame(data.X_train, data.categorical_features)
     x_holdout = to_lightgbm_frame(data.X_holdout, data.categorical_features)
     x_tr, x_val, y_tr, y_val = _early_val(x, data.y_train, seed)
@@ -67,7 +55,6 @@ def train_lightgbm(data: ModelingData, params: dict[str, Any], *, seed: int) -> 
 def train_catboost(
     data: ModelingData, params: dict[str, Any], *, seed: int, task_type: str = "CPU"
 ) -> GbdtResult:
-    """Рефит CatBoost на полном train (early stopping на отложенном val) → holdout."""
     x = to_catboost_frame(data.X_train, data.categorical_features)
     x_holdout = to_catboost_frame(data.X_holdout, data.categorical_features)
     x_tr, x_val, y_tr, y_val = _early_val(x, data.y_train, seed)
@@ -77,8 +64,8 @@ def train_catboost(
         random_seed=seed,
         eval_metric="AUC",
         cat_features=data.categorical_features,
-        max_ctr_complexity=1,  # без дорогих комбинаций категориальных — кратно быстрее
-        task_type=task_type,  # "GPU" задействует видеокарту (CatBoost-нативно)
+        max_ctr_complexity=1,
+        task_type=task_type,
         verbose=0,
         allow_writing_files=False,
     )

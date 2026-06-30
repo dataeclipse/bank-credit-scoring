@@ -1,5 +1,3 @@
-"""Тест локальной загрузки модели (ml): joblib-ветка model_loader без MLflow."""
-
 from __future__ import annotations
 
 import json
@@ -44,7 +42,7 @@ def test_load_from_local_joblib(tmp_path: Path) -> None:
     settings = Settings(model_uri=str(model_path), model_version_label="test", _env_file=None)
     service = load_scoring_service(settings, schema_path=schema_path)
 
-    assert service.model_version == "test"  # локальная ветка, без mlflow
+    assert service.model_version == "test"
     out = service.score({"EXT_SOURCE_2": 0.1, "AMT_CREDIT": 600000})
     assert 0.0 <= out.pd <= 1.0
     assert out.segment in ("low", "medium", "high")

@@ -1,5 +1,3 @@
-"""Тесты банковских метрик (data-слой, без ml-стека)."""
-
 from __future__ import annotations
 
 import numpy as np
@@ -49,11 +47,11 @@ def test_brier_bounds() -> None:
 def test_ece_well_calibrated_low() -> None:
     rng = np.random.default_rng(0)
     p = rng.random(5000)
-    y = (rng.random(5000) < p).astype(int)  # по построению идеально калибровано
+    y = (rng.random(5000) < p).astype(int)
     assert ece(y, p, bins=10) < 0.05
 
 
 def test_ece_miscalibrated_high() -> None:
     y = np.zeros(1000, dtype=int)
-    p = np.full(1000, 0.9)  # уверенно 0.9, а правда 0 → ECE ≈ 0.9
+    p = np.full(1000, 0.9)
     assert ece(y, p) > 0.8

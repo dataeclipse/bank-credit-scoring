@@ -1,5 +1,3 @@
-"""Контракт-тесты /score (data): валидация входа, форма ответа — через стаб (без ML)."""
-
 from __future__ import annotations
 
 from collections.abc import Iterator
@@ -43,7 +41,7 @@ class _StubService:
 @pytest.fixture
 def client() -> Iterator[TestClient]:
     app.dependency_overrides[get_service] = _StubService
-    yield TestClient(app)  # без `with` → lifespan (загрузка модели) не запускается
+    yield TestClient(app)
     app.dependency_overrides.clear()
 
 
@@ -59,7 +57,7 @@ def test_score_valid(client: TestClient) -> None:
 
 
 def test_score_rejects_positive_days_birth(client: TestClient) -> None:
-    bad = {**_VALID, "DAYS_BIRTH": 12000}  # должно быть < 0
+    bad = {**_VALID, "DAYS_BIRTH": 12000}
     assert client.post("/score", json=bad).status_code == 422
 
 
@@ -69,12 +67,12 @@ def test_score_rejects_bad_gender(client: TestClient) -> None:
 
 
 def test_score_rejects_ext_source_out_of_range(client: TestClient) -> None:
-    bad = {**_VALID, "EXT_SOURCE_2": 1.5}  # ge=0, le=1
+    bad = {**_VALID, "EXT_SOURCE_2": 1.5}
     assert client.post("/score", json=bad).status_code == 422
 
 
 def test_score_rejects_unknown_field(client: TestClient) -> None:
-    bad = {**_VALID, "UNKNOWN_FIELD": 1}  # extra="forbid"
+    bad = {**_VALID, "UNKNOWN_FIELD": 1}
     assert client.post("/score", json=bad).status_code == 422
 
 

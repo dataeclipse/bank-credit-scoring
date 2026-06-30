@@ -1,5 +1,3 @@
-"""Тесты SHAP-объяснимости (маркер explain): детерминизм + структура reason codes."""
-
 from __future__ import annotations
 
 import pytest
@@ -35,21 +33,20 @@ def test_shap_deterministic_and_ranked() -> None:
     model, frame = _model_and_features()
     first = global_importance(model, frame)
     second = global_importance(model, frame)
-    assert first == second  # TreeSHAP детерминирован
-    assert first[0][0] == "strong"  # сильная фича важнее
+    assert first == second
+    assert first[0][0] == "strong"
 
 
 @pytest.mark.explain
 def test_reason_codes_balanced_and_directioned() -> None:
-    # Контролируемые SHAP-значения: 2 за (+), 2 против (−).
     columns = ["a", "b", "c", "d"]
     values = [0.5, 0.3, -0.4, -0.1]
     codes = reason_codes_from_shap(columns, values, {}, top_n=2)
     increasing = [c for c in codes if c.direction == "increases"]
     decreasing = [c for c in codes if c.direction == "decreases"]
-    assert len(increasing) == 2 and len(decreasing) == 2  # оба направления
-    assert increasing[0].feature == "a"  # самый сильный «за» первым
-    assert decreasing[0].feature == "c"  # самый сильный «против» первым
+    assert len(increasing) == 2 and len(decreasing) == 2
+    assert increasing[0].feature == "a"
+    assert decreasing[0].feature == "c"
     assert all(c.direction in ("increases", "decreases") for c in codes)
 
 
@@ -63,8 +60,8 @@ def test_reason_codes_ext_source_humanized_with_value() -> None:
         feature_values={"EXT_SOURCE_3": 0.15},
     )
     code = codes[0]
-    assert "источник 3" in code.description  # цифра — номер источника
-    assert "0.15" in code.description  # значение фичи показано
+    assert "источник 3" in code.description
+    assert "0.15" in code.description
     assert code.direction == "increases"
 
 

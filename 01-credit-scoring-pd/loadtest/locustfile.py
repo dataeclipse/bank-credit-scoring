@@ -1,9 +1,3 @@
-"""Locust-нагрузочный тест POST /score.
-
-Запуск: uv run --extra loadtest locust -f loadtest/locustfile.py --headless \
-  -u 20 -r 5 -t 30s --host http://localhost:8000
-"""
-
 from __future__ import annotations
 
 import random
@@ -37,8 +31,6 @@ def _payload() -> dict[str, Any]:
 
 
 class ScoreUser(HttpUser):
-    """Пользователь, дёргающий /score случайными валидными заявками."""
-
     wait_time = between(0.0, 0.05)
 
     @task

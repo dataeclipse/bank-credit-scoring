@@ -1,5 +1,3 @@
-"""Тесты EDA-функций: доля дефолтов, пропуски, аномалия стажа."""
-
 from __future__ import annotations
 
 import polars as pl
@@ -21,7 +19,7 @@ def test_missingness() -> None:
     a_row = miss.filter(pl.col("column") == "a")
     assert a_row.select("null_count").item() == 2
     assert abs(a_row.select("null_frac").item() - 2 / 3) < 1e-9
-    assert miss["column"][0] == "a"  # отсортировано по убыванию доли пропусков
+    assert miss["column"][0] == "a"
 
 
 def test_days_employed_anomaly() -> None:

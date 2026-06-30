@@ -1,5 +1,3 @@
-"""Тесты воспроизводимости GBDT (маркер ml): один seed → идентичные holdout-метрики."""
-
 from __future__ import annotations
 
 import pytest

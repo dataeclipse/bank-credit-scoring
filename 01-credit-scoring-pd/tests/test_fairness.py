@@ -1,5 +1,3 @@
-"""Тесты fairness-метрик (маркер explain): известная диспропорция → ожидаемые значения."""
-
 from __future__ import annotations
 
 import pytest
@@ -16,11 +14,11 @@ from pd_scoring.models.fairness import fairness_report, youden_threshold  # noqa
 def test_fairness_full_disparity() -> None:
     n = 200
     group = pd.Series(["A"] * n + ["B"] * n)
-    score = np.concatenate([np.full(n, 0.1), np.full(n, 0.9)])  # A одобряют, B отказывают
+    score = np.concatenate([np.full(n, 0.1), np.full(n, 0.9)])
     y_true = np.concatenate([np.zeros(n), np.ones(n)]).astype(int)
     _, report = fairness_report(y_true, score, {"grp": group}, threshold=0.5)
     group_fairness = report["grp"]
-    assert group_fairness.disparate_impact == 0.0  # approval A=1, B=0 → ratio 0
+    assert group_fairness.disparate_impact == 0.0
     assert group_fairness.demographic_parity_diff == 1.0
 
 

@@ -1,5 +1,3 @@
-"""Тесты scorecard (маркер ml): сильная фича → высокий IV; сборка и predict."""
-
 from __future__ import annotations
 
 import pytest
@@ -34,9 +32,9 @@ def _signal_data() -> ModelingData:
 def test_scorecard_strong_feature_high_iv() -> None:
     result = fit_scorecard(_signal_data(), seed=42)
     iv = dict(zip(result.iv_table["name"], result.iv_table["iv"], strict=False))
-    assert iv["signal"] > iv["noise"]  # сильная фича — выше IV
+    assert iv["signal"] > iv["noise"]
     assert "signal" in result.selected_features
-    assert result.holdout_metrics["roc_auc"] > 0.7  # сигнал ловится
+    assert result.holdout_metrics["roc_auc"] > 0.7
 
 
 @pytest.mark.ml

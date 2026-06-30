@@ -1,9 +1,3 @@
-"""Данные для моделирования: витрина фичей + фиксированный split из Фазы 1.
-
-Берём ТОЛЬКО размеченные строки (inner-join со split.parquet). Таргет не пересобираем,
-split (seed 42) не трогаем — train/holdout одни и те же для всех моделей.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -18,8 +12,6 @@ NON_FEATURES = ("SK_ID_CURR", "TARGET", "is_train", "split")
 
 @dataclass(frozen=True)
 class ModelingData:
-    """Train/holdout матрицы + списки фич и категориальных колонок."""
-
     X_train: pd.DataFrame
     y_train: pd.Series
     X_holdout: pd.DataFrame
@@ -29,7 +21,6 @@ class ModelingData:
 
 
 def load_modeling_data(processed_dir: Path | None = None) -> ModelingData:
-    """Загрузить mart + split, вернуть train/holdout (только размеченные клиенты)."""
     settings = get_settings()
     pdir = processed_dir if processed_dir is not None else settings.data_dir / "processed"
     mart = pd.read_parquet(pdir / "mart.parquet")

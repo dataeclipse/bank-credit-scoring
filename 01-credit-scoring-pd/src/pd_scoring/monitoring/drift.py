@@ -1,8 +1,3 @@
-"""Дрейф-отчёт: PSI/CSI по входным фичам + дрейф распределения PD. CLI ``pd-scoring-drift``.
-
-Алертинг — на собственном PSI (детерминированно, тестируемо). Evidently — опциональный HTML-отчёт.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -17,7 +12,6 @@ from pd_scoring.config import get_settings
 from pd_scoring.logging_config import configure_logging, get_logger
 from pd_scoring.monitoring import population_stability_index
 
-# Фичи, которые «сдвигаем» в демо-дрейфе (имитация смены распределения входов).
 _DEMO_SHIFTS: dict[str, tuple[str, float]] = {
     "EXT_SOURCE_2": ("add", -0.15),
     "EXT_SOURCE_3": ("add", -0.15),
@@ -28,8 +22,6 @@ _DEMO_SHIFTS: dict[str, tuple[str, float]] = {
 
 @dataclass(frozen=True)
 class DriftReport:
-    """PSI по фичам, дрейф PD, список алертов и порог."""
-
     feature_psi: dict[str, float]
     pd_psi: float
     alerts: list[str]
@@ -39,7 +31,6 @@ class DriftReport:
 def feature_psi(
     reference: pd.DataFrame, current: pd.DataFrame, features: list[str], *, bins: int = 10
 ) -> dict[str, float]:
-    """PSI по каждой общей числовой фиче."""
     result: dict[str, float] = {}
     for feature in features:
         if feature in reference.columns and feature in current.columns:
@@ -61,7 +52,6 @@ def drift_report(
     threshold: float = 0.2,
     bins: int = 10,
 ) -> DriftReport:
-    """Собрать дрейф-отчёт: PSI фич + (опц.) дрейф PD; алерт при PSI > threshold."""
     feats = features or [
         c for c in reference.columns if pd.api.types.is_numeric_dtype(reference[c])
     ]
@@ -78,7 +68,6 @@ def drift_report(
 
 
 def apply_demo_drift(df: pd.DataFrame) -> pd.DataFrame:
-    """Синтетический сдвиг распределения входов (для демонстрации алерта)."""
     shifted = df.copy()
     for column, (op, value) in _DEMO_SHIFTS.items():
         if column in shifted.columns:
@@ -87,7 +76,6 @@ def apply_demo_drift(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def evidently_report(reference: pd.DataFrame, current: pd.DataFrame, path: Path) -> bool:
-    """Опциональный HTML-отчёт Evidently (best-effort; при сбое возвращает False)."""
     try:
         from evidently import Report
         from evidently.presets import DataDriftPreset
@@ -122,7 +110,6 @@ def _write_report_md(path: Path, report: DriftReport, evidently_ok: bool) -> Non
 
 
 def main(argv: list[str] | None = None) -> int:
-    """CLI ``pd-scoring-drift``: PSI входов + дрейф PD против reference (витрина)."""
     parser = argparse.ArgumentParser(description="Drift report: PSI of inputs and PD.")
     parser.add_argument("--current", default=None, help="parquet с текущей партией (фичи витрины)")
     parser.add_argument(

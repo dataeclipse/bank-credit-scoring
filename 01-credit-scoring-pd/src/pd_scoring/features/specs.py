@@ -1,10 +1,3 @@
-"""Декларативные спецификации client-level агрегаций (источник истины для кода и словаря).
-
-Каждая ``TableSpec`` описывает, какие числовые статистики и счётчики-флаги считать по
-дочерней таблице (bureau/previous/...) в разрезе ``SK_ID_CURR``. Из этих же спецификаций
-генерируются описания фич — код и документация не расходятся.
-"""
-
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -12,7 +5,6 @@ from dataclasses import dataclass, field
 
 import polars as pl
 
-# Поддерживаемые статистики и их выражения / русские подписи для словаря.
 STAT_EXPR: dict[str, Callable[[str], pl.Expr]] = {
     "mean": lambda c: pl.col(c).mean(),
     "sum": lambda c: pl.col(c).sum(),
@@ -31,8 +23,6 @@ STAT_RU: dict[str, str] = {
 
 @dataclass(frozen=True)
 class NumAgg:
-    """Числовая агрегация колонки набором статистик."""
-
     column: str
     stats: tuple[str, ...]
     desc: str
@@ -40,8 +30,6 @@ class NumAgg:
 
 @dataclass(frozen=True)
 class FlagCount:
-    """Счётчик строк, где категориальная колонка равна заданному значению."""
-
     name: str
     column: str
     value: str
@@ -50,8 +38,6 @@ class FlagCount:
 
 @dataclass(frozen=True)
 class TableSpec:
-    """Спецификация агрегации дочерней таблицы до уровня клиента."""
-
     prefix: str
     source: str
     key: str

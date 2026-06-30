@@ -1,9 +1,3 @@
-"""Оркестратор Фазы 3: калибровка + SHAP reason codes + fairness для прод-LightGBM.
-
-Пишет docs/calibration.md, docs/explainability.md, docs/fairness.md и figures в docs/img/.
-model_card обновляется отдельно. Сервис/дрейф — Фаза 4, здесь не трогаем.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -206,7 +200,6 @@ def _reason_examples(
 
 
 def main(argv: list[str] | None = None) -> int:
-    """CLI ``pd-scoring-evaluate``: калибровка + SHAP + fairness → docs/figures."""
     parser = argparse.ArgumentParser(description="Phase 3: calibration + SHAP + fairness.")
     parser.add_argument("--docs-dir", default="docs")
     parser.add_argument("--params", default="docs/prod_lgbm_params.json")

@@ -1,9 +1,3 @@
-"""Оркестратор Фазы 2: scorecard + LightGBM + CatBoost → метрики на одном holdout → MLflow → docs.
-
-Сравнение честное: все модели на одной фиче-базе, оценка на общем holdout (Фаза 1 split).
-Scorecard: WOE + IV-отбор. GBDT: нативные cat/NaN. Различия — в docs/model_comparison.md.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -181,7 +175,6 @@ def _run_gbdt(
 
 
 def _subsample(data: ModelingData, n: int, seed: int) -> ModelingData:
-    """Стратифицированный subsample train/holdout для быстрой сквозной проверки пайплайна."""
     from sklearn.model_selection import train_test_split
 
     def take(x: Any, y: Any, k: int) -> Any:
@@ -198,7 +191,6 @@ def _subsample(data: ModelingData, n: int, seed: int) -> ModelingData:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """CLI ``pd-scoring-train``: обучить 3 модели, сравнить на holdout, залогировать в MLflow."""
     parser = argparse.ArgumentParser(description="Train scorecard + GBDT, compare, log to MLflow.")
     parser.add_argument("--trials", type=int, default=30, help="Optuna trials на модель")
     parser.add_argument("--no-tune", action="store_true", help="без Optuna (дефолтные параметры)")
@@ -233,7 +225,6 @@ def main(argv: list[str] | None = None) -> int:
 
     results: dict[str, dict[str, float]] = {}
 
-    # Гиперпараметры подбираем на стратифицированном подвыборке (быстро), финал — на полном train.
     tune_data = data
     if not args.no_tune and len(data.y_train) > args.tune_sample:
         tune_data = _subsample(data, args.tune_sample, seed)

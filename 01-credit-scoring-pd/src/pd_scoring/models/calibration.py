@@ -1,9 +1,3 @@
-"""Калибровка вероятностей прод-LightGBM (isotonic vs Platt/sigmoid) без утечки.
-
-LightGBM учится на train_fit, калибратор фитится на отдельном calib, оценка — на holdout (test).
-Ни модель, ни калибратор не видят holdout.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,8 +15,6 @@ from pd_scoring.models.metrics import brier, ece, reliability_curve
 
 @dataclass(frozen=True)
 class CalibrationResult:
-    """Базовая модель + лучший калибратор + метрики/кривые до-после на holdout."""
-
     model: Any
     method: str
     calibrator: Any
@@ -33,7 +25,6 @@ class CalibrationResult:
 
 
 def split_fit_calib(data: ModelingData, *, seed: int, calib_size: float = 0.2) -> Any:
-    """Разбить train на fit/calib (stratified). holdout не трогаем — утечки нет."""
     return train_test_split(
         data.X_train,
         data.y_train,
@@ -52,7 +43,6 @@ def _apply(calibrator: Any, proba: Any) -> Any:
 def calibrate(
     data: ModelingData, params: dict[str, Any], *, seed: int, calib_size: float = 0.2
 ) -> CalibrationResult:
-    """Обучить LightGBM на train_fit, откалибровать на calib, оценить на holdout."""
     x_fit, x_calib, y_fit, y_calib = split_fit_calib(data, seed=seed, calib_size=calib_size)
     fit_data = ModelingData(
         X_train=x_fit.reset_index(drop=True),
