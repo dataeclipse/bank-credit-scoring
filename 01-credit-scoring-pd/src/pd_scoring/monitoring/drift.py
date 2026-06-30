@@ -1,0 +1,192 @@
+"""Дрейф-отчёт: PSI/CSI по входным фичам + дрейф распределения PD. CLI ``pd-scoring-drift``.
+
+Алертинг — на собственном PSI (детерминированно, тестируемо). Evidently — опциональный HTML-отчёт.
+"""
+
+from __future__ import annotations
+
+import argparse
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+import pandas as pd
+
+from pd_scoring.config import get_settings
+from pd_scoring.logging_config import configure_logging, get_logger
+from pd_scoring.monitoring import population_stability_index
+
+# Фичи, которые «сдвигаем» в демо-дрейфе (имитация смены распределения входов).
+_DEMO_SHIFTS: dict[str, tuple[str, float]] = {
+    "EXT_SOURCE_2": ("add", -0.15),
+    "EXT_SOURCE_3": ("add", -0.15),
+    "AMT_CREDIT": ("mul", 1.4),
+    "DAYS_EMPLOYED": ("mul", 1.3),
+}
+
+
+@dataclass(frozen=True)
+class DriftReport:
+    """PSI по фичам, дрейф PD, список алертов и порог."""
+
+    feature_psi: dict[str, float]
+    pd_psi: float
+    alerts: list[str]
+    threshold: float
+
+
+def feature_psi(
+    reference: pd.DataFrame, current: pd.DataFrame, features: list[str], *, bins: int = 10
+) -> dict[str, float]:
+    """PSI по каждой общей числовой фиче."""
+    result: dict[str, float] = {}
+    for feature in features:
+        if feature in reference.columns and feature in current.columns:
+            result[feature] = population_stability_index(
+                reference[feature].to_numpy(dtype=float),
+                current[feature].to_numpy(dtype=float),
+                bins=bins,
+            )
+    return result
+
+
+def drift_report(
+    reference: pd.DataFrame,
+    current: pd.DataFrame,
+    *,
+    features: list[str] | None = None,
+    pd_reference: Any = None,
+    pd_current: Any = None,
+    threshold: float = 0.2,
+    bins: int = 10,
+) -> DriftReport:
+    """Собрать дрейф-отчёт: PSI фич + (опц.) дрейф PD; алерт при PSI > threshold."""
+    feats = features or [
+        c for c in reference.columns if pd.api.types.is_numeric_dtype(reference[c])
+    ]
+    feat_psi = feature_psi(reference, current, feats, bins=bins)
+    pd_psi = 0.0
+    if pd_reference is not None and pd_current is not None:
+        pd_psi = population_stability_index(
+            np.asarray(pd_reference, dtype=float), np.asarray(pd_current, dtype=float), bins=bins
+        )
+    alerts = [f for f, value in feat_psi.items() if value > threshold]
+    if pd_psi > threshold:
+        alerts.append("PD")
+    return DriftReport(feat_psi, pd_psi, alerts, threshold)
+
+
+def apply_demo_drift(df: pd.DataFrame) -> pd.DataFrame:
+    """Синтетический сдвиг распределения входов (для демонстрации алерта)."""
+    shifted = df.copy()
+    for column, (op, value) in _DEMO_SHIFTS.items():
+        if column in shifted.columns:
+            shifted[column] = shifted[column] + value if op == "add" else shifted[column] * value
+    return shifted
+
+
+def evidently_report(reference: pd.DataFrame, current: pd.DataFrame, path: Path) -> bool:
+    """Опциональный HTML-отчёт Evidently (best-effort; при сбое возвращает False)."""
+    try:
+        from evidently import Report
+        from evidently.presets import DataDriftPreset
+
+        snapshot = Report(metrics=[DataDriftPreset()]).run(
+            reference_data=reference, current_data=current
+        )
+        snapshot.save_html(str(path))
+        return True
+    except Exception:
+        return False
+
+
+def _write_report_md(path: Path, report: DriftReport, evidently_ok: bool) -> None:
+    ranked = sorted(report.feature_psi.items(), key=lambda kv: kv[1], reverse=True)
+    lines = [
+        "# Drift report (сгенерировано pd-scoring-drift)",
+        "",
+        f"Порог алерта PSI > **{report.threshold}**. Дрейф PD (PSI): **{report.pd_psi:.3f}**.",
+        f"Алерты: **{', '.join(report.alerts) if report.alerts else 'нет'}**.",
+        "",
+        "## PSI по входным фичам (топ-20)",
+        "| Фича | PSI | алерт |",
+        "|------|-----|-------|",
+    ]
+    for name, value in ranked[:20]:
+        flag = "⚠️" if value > report.threshold else ""
+        lines.append(f"| `{name}` | {value:.3f} | {flag} |")
+    if evidently_ok:
+        lines += ["", "HTML-отчёт Evidently: `img/evidently_drift.html`."]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI ``pd-scoring-drift``: PSI входов + дрейф PD против reference (витрина)."""
+    parser = argparse.ArgumentParser(description="Drift report: PSI of inputs and PD.")
+    parser.add_argument("--current", default=None, help="parquet с текущей партией (фичи витрины)")
+    parser.add_argument(
+        "--demo-drift", action="store_true", help="синтетический сдвиг (демо алерта)"
+    )
+    parser.add_argument("--sample", type=int, default=10000)
+    parser.add_argument("--docs-dir", default="docs")
+    args = parser.parse_args(argv)
+
+    configure_logging()
+    log = get_logger("drift")
+    settings = get_settings()
+    processed = settings.data_dir / "processed"
+    reference = pd.read_parquet(processed / "mart.parquet")
+    reference = reference[reference["is_train"]].sample(
+        n=min(args.sample, int(reference["is_train"].sum())), random_state=settings.random_seed
+    )
+
+    if args.demo_drift:
+        current = apply_demo_drift(reference)
+    elif args.current:
+        current = pd.read_parquet(args.current)
+    else:
+        current = reference.sample(frac=1.0, random_state=settings.random_seed + 1)
+
+    features = [
+        c
+        for c in reference.columns
+        if c not in ("SK_ID_CURR", "TARGET", "is_train")
+        and pd.api.types.is_numeric_dtype(reference[c])
+    ]
+
+    import mlflow
+
+    mlflow.set_tracking_uri(settings.mlflow_tracking_uri or "sqlite:///mlflow.db")
+    model = mlflow.lightgbm.load_model(f"models:/{settings.model_name}@{settings.model_alias}")
+    order = list(model.feature_name_)
+    cats = [c for c in order if not pd.api.types.is_numeric_dtype(reference[c])]
+    ref_frame = reference[order].assign(**{c: reference[c].astype("category") for c in cats})
+    cur_frame = current[order].assign(**{c: current[c].astype("category") for c in cats})
+    pd_reference = model.predict_proba(ref_frame)[:, 1]
+    pd_current = model.predict_proba(cur_frame)[:, 1]
+
+    report = drift_report(
+        reference,
+        current,
+        features=features,
+        pd_reference=pd_reference,
+        pd_current=pd_current,
+        threshold=settings.psi_threshold,
+    )
+
+    docs = Path(args.docs_dir)
+    docs.mkdir(parents=True, exist_ok=True)
+    (docs / "img").mkdir(exist_ok=True)
+    evidently_ok = evidently_report(
+        reference[features], current[features], docs / "img" / "evidently_drift.html"
+    )
+    _write_report_md(docs / "drift_report.md", report, evidently_ok)
+    log.info(
+        "drift_done", pd_psi=round(report.pd_psi, 3), alerts=report.alerts, evidently=evidently_ok
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

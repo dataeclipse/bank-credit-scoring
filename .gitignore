@@ -36,6 +36,10 @@ artifacts/
 # --- Logs ---
 *.log
 
+# --- Сгенерированные тяжёлые отчёты (Evidently HTML и пр.) ---
+**/docs/**/*.html
+**/evidently_*.html
+
 # --- Caches ---
 .mypy_cache/
 .ruff_cache/

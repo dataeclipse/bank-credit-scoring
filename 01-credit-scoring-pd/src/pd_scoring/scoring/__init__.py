@@ -1,12 +1,12 @@
-"""Скоринг: PD → балл → риск-сегмент → reason codes.
-
-Типы результата определены здесь; расчёт балла и сегментация реализуются в Фазах 2 и 4.
-"""
+"""Скоринг: PD → балл → риск-сегмент → reason codes."""
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from enum import StrEnum
+
+_EPS = 1e-6
 
 
 class RiskSegment(StrEnum):
@@ -36,11 +36,22 @@ class ScoringResult:
     reason_codes: list[ReasonCode]
 
 
-def pd_to_score(pd: float, *, base_score: int = 600, pdo: int = 50) -> int:
-    """Преобразовать PD в скоринговый балл (scorecard scaling). Реализация — Фаза 2."""
-    raise NotImplementedError("Phase 2: scorecard score scaling")
+def pd_to_score(pd: float, *, base_score: int = 600, pdo: int = 50, base_odds: float = 50.0) -> int:
+    """PD → скоринговый балл по PDO/odds-шкале (выше балл = ниже риск).
+
+    factor = PDO/ln2; offset = base_score − factor·ln(base_odds);
+    score = offset + factor·ln(odds_good), где odds_good = (1−PD)/PD.
+    """
+    pd = min(max(pd, _EPS), 1.0 - _EPS)
+    factor = pdo / math.log(2.0)
+    offset = base_score - factor * math.log(base_odds)
+    return int(round(offset + factor * math.log((1.0 - pd) / pd)))
 
 
-def assign_segment(pd: float) -> RiskSegment:
-    """Назначить риск-сегмент по PD. Реализация — Фаза 4."""
-    raise NotImplementedError("Phase 4: risk segmentation")
+def assign_segment(pd: float, *, low: float = 0.05, high: float = 0.15) -> RiskSegment:
+    """Назначить риск-сегмент по PD: <low → low, <high → medium, иначе high."""
+    if pd < low:
+        return RiskSegment.LOW
+    if pd < high:
+        return RiskSegment.MEDIUM
+    return RiskSegment.HIGH

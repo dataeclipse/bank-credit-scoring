@@ -8,9 +8,10 @@ from pd_scoring import __version__
 
 
 def test_healthz_ok(client: TestClient) -> None:
-    """GET /healthz отвечает 200 и корректным телом."""
+    """GET /healthz отвечает 200; без загруженной модели — статус degraded."""
     response = client.get("/healthz")
     assert response.status_code == 200
     body = response.json()
-    assert body["status"] == "ok"
+    assert body["status"] in ("ok", "degraded")  # degraded, пока модель не загружена
     assert body["version"] == __version__
+    assert "model_loaded" in body

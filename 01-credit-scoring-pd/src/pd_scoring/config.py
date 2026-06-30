@@ -31,6 +31,21 @@ class Settings(BaseSettings):
     mlflow_tracking_uri: str | None = None
     mlflow_experiment: str = "pd-scoring-phase2"
 
+    # Прод-модель в MLflow registry (грузим по алиасу, не по пути).
+    model_name: str = "pd-lightgbm"
+    model_alias: str = "champion"
+    use_calibrator: bool = False
+
+    # Шкала скорингового балла (PDO/odds) и пороги риск-сегмента по PD.
+    score_base: int = 600
+    score_pdo: int = 50
+    score_base_odds: float = 50.0
+    segment_low: float = 0.05
+    segment_high: float = 0.15
+
+    # Мониторинг дрейфа.
+    psi_threshold: float = 0.2
+
     # Пути проекта.
     data_dir: Path = Path("data")
     model_dir: Path = Path("artifacts/models")

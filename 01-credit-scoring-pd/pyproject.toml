@@ -16,6 +16,7 @@ dependencies = [
     "uvicorn[standard]>=0.34",
     "SQLAlchemy>=2.0",
     "psycopg[binary]>=3.2",
+    "prometheus-client>=0.20",
 ]
 
 # Зависимости разделены на два extra (floor на 30.06.2026, синхр. с ../project1_scoring.txt):
@@ -56,6 +57,8 @@ explain = [
     "fairlearn>=0.12",
     "evidently>=0.5",
 ]
+# Нагрузочный тест /score (Фаза 4). Ставится отдельно: uv sync --extra loadtest.
+loadtest = ["locust>=2.0"]
 
 [project.scripts]
 pd-scoring-serve = "pd_scoring.service.cli:serve"
@@ -63,6 +66,7 @@ pd-scoring-ingest = "pd_scoring.data.download:main"
 pd-scoring-build-mart = "pd_scoring.features.build_mart:main"
 pd-scoring-train = "pd_scoring.models.train:main"
 pd-scoring-evaluate = "pd_scoring.models.evaluate:main"
+pd-scoring-drift = "pd_scoring.monitoring.drift:main"
 
 # PEP 735 dev-группа. `uv sync` ставит её по умолчанию.
 [dependency-groups]
@@ -91,6 +95,10 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
+# FastAPI Depends/Query/... в дефолтах аргументов — это паттерн фреймворка, не баг (B008).
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path", "fastapi.Body"]
+
 [tool.ruff.format]
 docstring-code-format = true
 
@@ -109,6 +117,7 @@ module = [
     "matplotlib.*",
     "optuna.*",
     "mlflow.*",
+    "locust.*",
     "lightgbm.*",
     "xgboost.*",
     "catboost.*",
