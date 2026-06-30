@@ -85,7 +85,14 @@ make eda              # выполнить notebooks/01_eda.ipynb → docs/eda.m
 - **Fairness** (Fairlearn): пол DI 0.82 (ок), возраст DI 0.63 (<0.8 — молодые в зоне риска отказа).
   [docs/fairness.md](docs/fairness.md).
 
-**Фаза 4+** `TODO`: сервис `/score`, мониторинг дрейфа (PSI/CSI), дашборд.
+**Фаза 4 — сервис · мониторинг · нагрузка**:
+- **FastAPI** `/score` (PD, балл, риск-сегмент, топ-3 reason codes), `/healthz`, `/metrics` (Prometheus);
+  модель из MLflow registry по алиасу `@champion`. [docs/serving.md](docs/serving.md).
+- **Дрейф** (PSI/CSI входов + дрейф PD, Evidently): при подмене распределения — алерт (PSI>0.2).
+  [docs/monitoring.md](docs/monitoring.md).
+- **Латентность** /score: p50 ≈ 83 мс, p95 ≈ 86 мс. [docs/load_test.md](docs/load_test.md).
+
+**Фаза 5** `TODO`: Docker/compose, CI/CD, финальная model card, демо.
 
 ## Model card
 См. [docs/model_card.md](docs/model_card.md) — назначение, данные, метрики, калибровка,
@@ -98,7 +105,7 @@ make eda              # выполнить notebooks/01_eda.ipynb → docs/eda.m
 | 1 ✅ | Данные и витрина фичей (Home Credit, агрегации без утечек, EDA, split+seed) |
 | 2 ✅ | Две модели: WOE-scorecard + GBDT, метрики, MLflow, выбор в прод (LightGBM, Gini 0.579) |
 | 3 ✅ | Калибровка (ECE 0.003) + SHAP reason codes + fairness (Fairlearn) |
-| 4 | Сервис `/score` + Evidently PSI/CSI дрейф + нагрузочный тест |
+| 4 ✅ | Сервис `/score` + Evidently PSI/CSI дрейф + нагрузочный тест (p50 83мс) |
 | 5 | Прод: Docker/compose, CI/CD, полная model card, демо |
 
 ## License
