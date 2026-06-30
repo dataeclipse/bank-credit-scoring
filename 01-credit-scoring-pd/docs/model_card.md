@@ -28,12 +28,18 @@
 - Обоснование выбора модели в прод (качество ↔ интерпретируемость): `TODO` (Фаза 2).
 
 ## 4. Метрики качества
-| Метрика | Scorecard | GBDT |
-|---|---|---|
-| ROC-AUC | `TODO` | `TODO` |
-| Gini | `TODO` | `TODO` |
-| KS | `TODO` | `TODO` |
-| PR-AUC | `TODO` | `TODO` |
+Holdout 61 503 заявок (Фаза 1 stratified split, seed 42). HPO — Optuna на подвыборке train,
+финал — на полном train. Выбор в прод: **LightGBM** (scorecard — интерпретируемый challenger).
+
+| Метрика | Scorecard | LightGBM | CatBoost |
+|---|---|---|---|
+| ROC-AUC | 0.770 | **0.790** | 0.789 |
+| Gini | 0.539 | **0.579** | 0.579 |
+| KS | 0.407 | **0.440** | 0.440 |
+| PR-AUC | 0.255 | 0.287 | 0.289 |
+
+Scorecard CV (биннинг внутри фолдов, без оптимизма): Gini 0.528. Детали:
+[model_comparison.md](model_comparison.md), [model_selection.md](model_selection.md).
 
 ## 5. Калибровка
 Метод (isotonic/Platt), reliability curve, Brier score до/после: `TODO` (Фаза 3).

@@ -65,8 +65,19 @@ make eda              # выполнить notebooks/01_eda.ipynb → docs/eda.m
   утилизация кредитки и просрочки бюро. Аномалия `DAYS_EMPLOYED==365243` (18%) вынесена во флаг.
 - Полный разбор: [docs/eda.md](docs/eda.md) + [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb).
 
-**Фаза 2+** `TODO`: банковские метрики (Gini/KS/ROC-AUC/PR-AUC) scorecard vs GBDT, reliability
-curve, reason codes, дашборд дрейфа.
+**Фаза 2 — две модели** (holdout 61 503, Фаза 1 split; всё в MLflow registry):
+
+| Модель | ROC-AUC | PR-AUC | KS | Gini |
+|---|---|---|---|---|
+| Scorecard (WOE, 76/120 фич) | 0.770 | 0.255 | 0.407 | 0.539 |
+| **LightGBM** | **0.790** | 0.287 | **0.440** | **0.579** |
+| CatBoost | 0.789 | 0.289 | 0.440 | 0.579 |
+
+**В прод — LightGBM** (Gini 0.579), scorecard оставлен как интерпретируемый challenger (Δ Gini 0.04).
+Подробно: [docs/model_comparison.md](docs/model_comparison.md), [docs/model_selection.md](docs/model_selection.md),
+[docs/scorecard.md](docs/scorecard.md). Scorecard CV (биннинг внутри фолдов): Gini 0.528 — без оптимизма.
+
+**Фаза 3+** `TODO`: калибровка + reliability curve, SHAP reason codes, fairness, дашборд дрейфа.
 
 ## Model card
 См. [docs/model_card.md](docs/model_card.md) — назначение, данные, метрики, калибровка,
@@ -77,7 +88,7 @@ curve, reason codes, дашборд дрейфа.
 |---|---|
 | 0 ✅ | Скелет: структура, uv/pyproject, ruff/mypy/pytest/pre-commit, CI, `/healthz` |
 | 1 ✅ | Данные и витрина фичей (Home Credit, агрегации без утечек, EDA, split+seed) |
-| 2 | Две модели: WOE-scorecard + GBDT, метрики, MLflow, выбор в прод |
+| 2 ✅ | Две модели: WOE-scorecard + GBDT, метрики, MLflow, выбор в прод (LightGBM, Gini 0.579) |
 | 3 | Калибровка + SHAP reason codes + fairness (Fairlearn) |
 | 4 | Сервис `/score` + Evidently PSI/CSI дрейф + нагрузочный тест |
 | 5 | Прод: Docker/compose, CI/CD, полная model card, демо |
