@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Один проект моно-репо. Job гоняется в его подкаталоге.
+defaults:
+  run:
+    working-directory: 01-credit-scoring-pd
+
+jobs:
+  quality:
+    name: lint · type · test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.11.25"
+          enable-cache: true
+          cache-dependency-glob: "01-credit-scoring-pd/uv.lock"
+
+      - name: Sync (core + dev, без тяжёлого ML-стека)
+        run: uv sync --frozen
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: Mypy (strict)
+        run: uv run mypy src
+
+      - name: Pytest
+        run: uv run pytest

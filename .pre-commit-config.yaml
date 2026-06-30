@@ -1,0 +1,26 @@
+# Хуки качества для Проекта 1 (моно-репо: git-корень здесь, проект в подкаталоге).
+# Установка: pre-commit install. Обновить пины: pre-commit autoupdate.
+minimum_pre_commit_version: "3.5.0"
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.2
+    hooks:
+      - id: ruff
+        name: ruff (lint + autofix)
+        args: [--fix]
+        files: ^01-credit-scoring-pd/
+      - id: ruff-format
+        files: ^01-credit-scoring-pd/
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        files: ^01-credit-scoring-pd/src/
+        args: [--config-file, 01-credit-scoring-pd/pyproject.toml]
+        additional_dependencies:
+          - pydantic
+          - pydantic-settings
+          - structlog
+          - fastapi

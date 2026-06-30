@@ -1,0 +1,39 @@
+# Локальный контур сервиса. Запуск: docker compose -f infra/compose.yaml up --build
+# (из каталога 01-credit-scoring-pd).
+name: pd-scoring
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      PD_ENV: docker
+      PD_LOG_LEVEL: INFO
+      PD_DATABASE_URL: postgresql+psycopg://scoring:scoring@db:5432/scoring
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: scoring
+      POSTGRES_PASSWORD: scoring
+      POSTGRES_DB: scoring
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scoring"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # TODO(Phase 5): mlflow (tracking/registry) + evidently (drift dashboard).
+
+volumes:
+  pgdata:

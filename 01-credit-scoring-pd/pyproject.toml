@@ -1,0 +1,104 @@
+[project]
+name = "pd-scoring"
+version = "0.1.0"
+description = "Кредитный скоринг (PD) как production-сервис: WOE-scorecard + GBDT, калибровка, SHAP, fairness, мониторинг дрейфа."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "dataeclipse" }]
+
+# Лёгкое ядро — нужно скелету сервиса и конфигу. Ставится `uv sync`.
+dependencies = [
+    "pydantic>=2.11",
+    "pydantic-settings>=2.6",
+    "structlog>=24.4",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.34",
+    "SQLAlchemy>=2.0",
+    "psycopg[binary]>=3.2",
+]
+
+# Тяжёлый ML/DS-стек — подключается с Фазы 1: `uv sync --extra ml`.
+# Версии (floor на 30.06.2026) синхронизированы с ../project1_scoring.txt.
+[project.optional-dependencies]
+ml = [
+    "numpy>=2.4",
+    "pandas>=2.2",
+    "polars>=1.0",
+    "scipy>=1.14",
+    "scikit-learn>=1.8.0",
+    "lightgbm>=4.6.0",
+    "xgboost>=3.2.0",
+    "catboost>=1.2.10",
+    "imbalanced-learn>=0.13",
+    "optbinning>=0.20",
+    "shap>=0.46",
+    "fairlearn>=0.12",
+    "mlflow>=2.18",
+    "evidently>=0.5",
+    "matplotlib>=3.9",
+    "seaborn>=0.13",
+]
+
+[project.scripts]
+pd-scoring-serve = "pd_scoring.service.cli:serve"
+pd-scoring-ingest = "pd_scoring.data.ingest:main"
+
+# PEP 735 dev-группа. `uv sync` ставит её по умолчанию.
+[dependency-groups]
+dev = [
+    "ruff>=0.7",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "pytest-cov>=5.0",
+    "pre-commit>=4.0",
+    "httpx>=0.27",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pd_scoring"]
+
+# --- Качество кода ---
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+files = ["src"]
+
+# ML-библиотеки без type stubs — не ломаем strict-проверку их импортами.
+[[tool.mypy.overrides]]
+module = [
+    "lightgbm.*",
+    "xgboost.*",
+    "catboost.*",
+    "shap.*",
+    "optbinning.*",
+    "fairlearn.*",
+    "evidently.*",
+    "imblearn.*",
+    "seaborn.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --cov=pd_scoring --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["pd_scoring"]
+branch = true

@@ -1,0 +1,46 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# --- Virtual envs ---
+.venv/
+venv/
+
+# --- Environment / secrets (секреты НИКОГДА не коммитим) ---
+.env
+.env.*
+!.env.example
+kaggle.json
+.kaggle/
+
+# --- Data (датасеты не коммитим; держим только README) ---
+**/data/*
+!**/data/README.md
+
+# --- ML artifacts / tracking ---
+mlruns/
+artifacts/
+*.parquet
+*.pkl
+*.joblib
+*.cbm
+
+# --- Caches ---
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# --- Notebooks ---
+.ipynb_checkpoints/
+
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
