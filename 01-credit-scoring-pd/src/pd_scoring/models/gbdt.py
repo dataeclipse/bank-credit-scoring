@@ -64,7 +64,9 @@ def train_lightgbm(data: ModelingData, params: dict[str, Any], *, seed: int) -> 
     return GbdtResult(model, proba, evaluate(data.y_holdout, proba), best)
 
 
-def train_catboost(data: ModelingData, params: dict[str, Any], *, seed: int) -> GbdtResult:
+def train_catboost(
+    data: ModelingData, params: dict[str, Any], *, seed: int, task_type: str = "CPU"
+) -> GbdtResult:
     """Рефит CatBoost на полном train (early stopping на отложенном val) → holdout."""
     x = to_catboost_frame(data.X_train, data.categorical_features)
     x_holdout = to_catboost_frame(data.X_holdout, data.categorical_features)
@@ -76,6 +78,7 @@ def train_catboost(data: ModelingData, params: dict[str, Any], *, seed: int) -> 
         eval_metric="AUC",
         cat_features=data.categorical_features,
         max_ctr_complexity=1,  # без дорогих комбинаций категориальных — кратно быстрее
+        task_type=task_type,  # "GPU" задействует видеокарту (CatBoost-нативно)
         verbose=0,
         allow_writing_files=False,
     )

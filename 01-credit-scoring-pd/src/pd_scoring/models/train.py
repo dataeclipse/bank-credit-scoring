@@ -203,6 +203,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--trials", type=int, default=30, help="Optuna trials на модель")
     parser.add_argument("--no-tune", action="store_true", help="без Optuna (дефолтные параметры)")
     parser.add_argument("--tune-sample", type=int, default=40000, help="размер подвыборки для HPO")
+    parser.add_argument("--gpu", action="store_true", help="CatBoost на GPU (task_type=GPU)")
     parser.add_argument(
         "--sample", type=int, default=None, help="subsample train для smoke-проверки"
     )
@@ -254,12 +255,13 @@ def main(argv: list[str] | None = None) -> int:
         "lightgbm_done", **{f"holdout_{k}": round(v, 4) for k, v in lgbm.holdout_metrics.items()}
     )
 
+    cat_task = "GPU" if args.gpu else "CPU"
     cat_params = (
         DEFAULT_CATBOOST
         if args.no_tune
-        else tune_catboost(tune_data, seed=seed, n_trials=args.trials)
+        else tune_catboost(tune_data, seed=seed, n_trials=args.trials, task_type=cat_task)
     )
-    catboost = train_catboost(data, cat_params, seed=seed)
+    catboost = train_catboost(data, cat_params, seed=seed, task_type=cat_task)
     _run_gbdt("catboost", "catboost", catboost, cat_params)
     results["catboost"] = catboost.holdout_metrics
     log.info(

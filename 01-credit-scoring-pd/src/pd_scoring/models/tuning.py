@@ -48,7 +48,12 @@ def _mean_cv_auc_lightgbm(
 
 
 def _mean_cv_auc_catboost(
-    params: dict[str, Any], x: pd.DataFrame, y: pd.Series, categorical: list[str], seed: int
+    params: dict[str, Any],
+    x: pd.DataFrame,
+    y: pd.Series,
+    categorical: list[str],
+    seed: int,
+    task_type: str,
 ) -> float:
     aucs: list[float] = []
     for tr, va in _cv(seed).split(x, y):
@@ -59,6 +64,7 @@ def _mean_cv_auc_catboost(
             eval_metric="AUC",
             cat_features=categorical,
             max_ctr_complexity=1,  # без комбинаций категориальных — кратно быстрее
+            task_type=task_type,
             verbose=0,
             allow_writing_files=False,
         )
@@ -97,7 +103,7 @@ def tune_lightgbm(
 
 
 def tune_catboost(
-    data: ModelingData, *, seed: int, n_trials: int = DEFAULT_TRIALS
+    data: ModelingData, *, seed: int, n_trials: int = DEFAULT_TRIALS, task_type: str = "CPU"
 ) -> dict[str, Any]:
     """TPE-поиск гиперпараметров CatBoost по mean CV ROC-AUC."""
     optuna.logging.set_verbosity(optuna.logging.WARNING)
@@ -110,7 +116,7 @@ def tune_catboost(
             "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 1.0, 20.0, log=True),
             "random_strength": trial.suggest_float("random_strength", 1e-3, 10.0, log=True),
         }
-        return _mean_cv_auc_catboost(params, x, y, data.categorical_features, seed)
+        return _mean_cv_auc_catboost(params, x, y, data.categorical_features, seed, task_type)
 
     study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=seed))
     study.optimize(objective, n_trials=n_trials, show_progress_bar=False)
