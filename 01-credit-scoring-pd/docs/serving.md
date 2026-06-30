@@ -29,16 +29,43 @@ curl -s -X POST http://localhost:8000/score -H 'Content-Type: application/json' 
 }'
 ```
 
-### Пример ответа
+### Пример ответа A — высокий риск (низкие EXT_SOURCE)
 ```json
 {
-  "pd": 0.436,
-  "score": 336,
-  "segment": "high",
+  "pd": 0.532, "score": 309, "segment": "high",
   "reason_codes": [
-    {"feature": "EXT_SOURCE_3", "contribution": 0.833, "description": "внешний скоринговый балл 3 — повышает риск"},
-    {"feature": "EXT_SOURCE_2", "contribution": 0.566, "description": "внешний скоринговый балл 2 — повышает риск"},
-    {"feature": "EXT_SOURCE_1", "contribution": 0.523, "description": "внешний скоринговый балл 1 — повышает риск"}
+    {"feature": "EXT_SOURCE_3", "contribution": 0.958, "direction": "increases",
+     "description": "внешний скоринговый балл (источник 3) = 0.1 — повышает риск"},
+    {"feature": "EXT_SOURCE_2", "contribution": 0.683, "direction": "increases",
+     "description": "внешний скоринговый балл (источник 2) = 0.12 — повышает риск"},
+    {"feature": "EXT_SOURCE_1", "contribution": 0.599, "direction": "increases",
+     "description": "внешний скоринговый балл (источник 1) = 0.08 — повышает риск"},
+    {"feature": "DAYS_BIRTH", "contribution": -0.179, "direction": "decreases",
+     "description": "возраст в днях (<0) = -8500 — снижает риск"},
+    {"feature": "NAME_CONTRACT_TYPE", "contribution": -0.113, "direction": "decreases",
+     "description": "тип кредита (cash/revolving) — снижает риск"},
+    {"feature": "REGION_RATING_CLIENT_W_CITY", "contribution": -0.071, "direction": "decreases",
+     "description": "рейтинг региона с учётом города — снижает риск"}
+  ],
+  "model_version": "3"
+}
+```
+
+### Пример ответа B — низкий риск (высокие EXT_SOURCE)
+```json
+{
+  "pd": 0.016, "score": 615, "segment": "low",
+  "reason_codes": [
+    {"feature": "DAYS_REGISTRATION", "contribution": 0.241, "direction": "increases",
+     "description": "давность смены регистрации (дни) — повышает риск"},
+    {"feature": "CREDIT_ANNUITY_RATIO", "contribution": 0.137, "direction": "increases",
+     "description": "сумма кредита / аннуитет (прокси срока) = 20.5 — повышает риск"},
+    {"feature": "EXT_SOURCE_2", "contribution": -0.497, "direction": "decreases",
+     "description": "внешний скоринговый балл (источник 2) = 0.72 — снижает риск"},
+    {"feature": "EXT_SOURCE_1", "contribution": -0.328, "direction": "decreases",
+     "description": "внешний скоринговый балл (источник 1) = 0.75 — снижает риск"},
+    {"feature": "EXT_SOURCE_3", "contribution": -0.241, "direction": "decreases",
+     "description": "внешний скоринговый балл (источник 3) = 0.68 — снижает риск"}
   ],
   "model_version": "3"
 }
@@ -50,8 +77,10 @@ curl -s -X POST http://localhost:8000/score -H 'Content-Type: application/json' 
 Сегмент по PD: `< 0.05` → **low**, `< 0.15` → **medium**, иначе **high** (пороги в config).
 
 ## Reason codes
-LightGBM native TreeSHAP (`pred_contrib`) — топ-3 фактора по |вкладу|; знак = направление влияния
-на риск; описание — из `feature_schema.json`.
+LightGBM native TreeSHAP (`pred_contrib`). Возвращаем **сбалансированно**: топ-3 фактора «за» риск
+(`direction: increases`) + топ-3 «против» (`decreases`) — видно обе стороны решения. Поле `direction`
+машинно-читаемое; описание — человекочитаемое (для `EXT_SOURCE_N` цифра = номер источника, плюс
+значение фичи). Источник имён — `feature_schema.json`.
 
 ## Латентность
 См. [load_test.md](load_test.md): одиночный запрос p50 ≈ 83 мс, p95 ≈ 86 мс.

@@ -5,8 +5,11 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Literal
 
 _EPS = 1e-6
+
+Direction = Literal["increases", "decreases"]
 
 
 class RiskSegment(StrEnum):
@@ -19,11 +22,12 @@ class RiskSegment(StrEnum):
 
 @dataclass(frozen=True)
 class ReasonCode:
-    """Причина решения — вклад фактора (SHAP)."""
+    """Причина решения — вклад фактора (SHAP). direction: increases|decreases риск."""
 
     feature: str
     contribution: float
     description: str
+    direction: Direction
 
 
 @dataclass(frozen=True)

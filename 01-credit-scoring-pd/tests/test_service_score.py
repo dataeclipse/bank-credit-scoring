@@ -29,7 +29,12 @@ class _StubService:
             score=640,
             segment="medium",
             reason_codes=[
-                ReasonCodeOut(feature="EXT_SOURCE_2", contribution=-0.1, description="x")
+                ReasonCodeOut(
+                    feature="EXT_SOURCE_2",
+                    contribution=-0.1,
+                    direction="decreases",
+                    description="внешний скоринговый балл (источник 2) = 0.5 — снижает риск",
+                )
             ],
             model_version="test",
         )
@@ -49,6 +54,7 @@ def test_score_valid(client: TestClient) -> None:
     assert 0.0 <= body["pd"] <= 1.0
     assert body["segment"] in ("low", "medium", "high")
     assert len(body["reason_codes"]) >= 1
+    assert body["reason_codes"][0]["direction"] in ("increases", "decreases")
     assert body["model_version"] == "test"
 
 

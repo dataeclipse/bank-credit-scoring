@@ -38,10 +38,11 @@ class ApplicationIn(BaseModel):
 
 
 class ReasonCodeOut(BaseModel):
-    """Reason code в ответе: фича, вклад SHAP, человекочитаемое описание."""
+    """Reason code в ответе: фича, вклад SHAP, направление и человекочитаемое описание."""
 
     feature: str
     contribution: float
+    direction: Literal["increases", "decreases"]
     description: str
 
 

@@ -11,7 +11,11 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 from lightgbm import LGBMClassifier  # noqa: E402
 
-from pd_scoring.models.explain import global_importance, reason_codes  # noqa: E402
+from pd_scoring.models.explain import (  # noqa: E402
+    global_importance,
+    reason_codes,
+    reason_codes_from_shap,
+)
 
 
 def _model_and_features() -> tuple[LGBMClassifier, pd.DataFrame]:
@@ -36,10 +40,37 @@ def test_shap_deterministic_and_ranked() -> None:
 
 
 @pytest.mark.explain
-def test_reason_codes_structure() -> None:
+def test_reason_codes_balanced_and_directioned() -> None:
+    # Контролируемые SHAP-значения: 2 за (+), 2 против (−).
+    columns = ["a", "b", "c", "d"]
+    values = [0.5, 0.3, -0.4, -0.1]
+    codes = reason_codes_from_shap(columns, values, {}, top_n=2)
+    increasing = [c for c in codes if c.direction == "increases"]
+    decreasing = [c for c in codes if c.direction == "decreases"]
+    assert len(increasing) == 2 and len(decreasing) == 2  # оба направления
+    assert increasing[0].feature == "a"  # самый сильный «за» первым
+    assert decreasing[0].feature == "c"  # самый сильный «против» первым
+    assert all(c.direction in ("increases", "decreases") for c in codes)
+
+
+@pytest.mark.explain
+def test_reason_codes_ext_source_humanized_with_value() -> None:
+    codes = reason_codes_from_shap(
+        ["EXT_SOURCE_3"],
+        [0.8],
+        {"EXT_SOURCE_3": "внешний скоринговый балл 3"},
+        top_n=1,
+        feature_values={"EXT_SOURCE_3": 0.15},
+    )
+    code = codes[0]
+    assert "источник 3" in code.description  # цифра — номер источника
+    assert "0.15" in code.description  # значение фичи показано
+    assert code.direction == "increases"
+
+
+@pytest.mark.explain
+def test_reason_codes_real_model_has_direction() -> None:
     model, frame = _model_and_features()
-    descriptions = {"strong": "сильный фактор", "weak": "слабый фактор"}
-    codes = reason_codes(model, frame.iloc[[0]], descriptions, top_n=2)
-    assert len(codes) == 2
-    assert all(isinstance(code.contribution, float) for code in codes)
-    assert any(word in codes[0].description for word in ("повышает риск", "снижает риск"))
+    codes = reason_codes(model, frame.iloc[[0]], {"strong": "сильный", "weak": "слабый"}, top_n=2)
+    assert codes
+    assert all(c.direction in ("increases", "decreases") for c in codes)

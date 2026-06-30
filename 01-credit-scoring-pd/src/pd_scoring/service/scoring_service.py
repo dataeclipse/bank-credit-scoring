@@ -100,7 +100,11 @@ class ScoringService:
         # последняя колонка — base value, отбрасываем.
         contributions = np.asarray(self.model.booster_.predict(frame, pred_contrib=True))[0][:-1]
         codes = reason_codes_from_shap(
-            self.feature_order, contributions, self.descriptions, top_n=3
+            self.feature_order,
+            contributions,
+            self.descriptions,
+            top_n=3,
+            feature_values=frame.iloc[0].to_dict(),
         )
         return ScoreOut(
             pd=pd_value,
@@ -108,7 +112,10 @@ class ScoringService:
             segment=segment.value,
             reason_codes=[
                 ReasonCodeOut(
-                    feature=c.feature, contribution=c.contribution, description=c.description
+                    feature=c.feature,
+                    contribution=c.contribution,
+                    direction=c.direction,
+                    description=c.description,
                 )
                 for c in codes
             ],
