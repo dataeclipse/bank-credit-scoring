@@ -34,7 +34,7 @@ def apply_spec(df: pl.DataFrame, spec: TableSpec) -> AggResult:
             f"{spec.prefix}_COUNT",
             spec.source,
             "UInt32",
-            f"число записей ({spec.prefix}) на клиента",
+            f"number of records ({spec.prefix}) per client",
         )
     ]
     cols = set(df.columns)

@@ -7,721 +7,721 @@
       "name": "NAME_CONTRACT_TYPE",
       "dtype": "String",
       "source": "application.csv",
-      "description": "тип кредита (cash/revolving)"
+      "description": "credit type (cash/revolving)"
     },
     {
       "name": "CODE_GENDER",
       "dtype": "String",
       "source": "application.csv",
-      "description": "пол клиента"
+      "description": "client gender"
     },
     {
       "name": "FLAG_OWN_CAR",
       "dtype": "String",
       "source": "application.csv",
-      "description": "есть автомобиль"
+      "description": "owns a car"
     },
     {
       "name": "FLAG_OWN_REALTY",
       "dtype": "String",
       "source": "application.csv",
-      "description": "есть недвижимость"
+      "description": "owns real estate"
     },
     {
       "name": "CNT_CHILDREN",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "число детей"
+      "description": "number of children"
     },
     {
       "name": "AMT_INCOME_TOTAL",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "совокупный доход"
+      "description": "total income"
     },
     {
       "name": "AMT_CREDIT",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "сумма кредита по заявке"
+      "description": "credit amount on the application"
     },
     {
       "name": "AMT_ANNUITY",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "аннуитетный платёж"
+      "description": "annuity payment"
     },
     {
       "name": "AMT_GOODS_PRICE",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "стоимость товара под кредит"
+      "description": "price of the goods financed by the credit"
     },
     {
       "name": "NAME_INCOME_TYPE",
       "dtype": "String",
       "source": "application.csv",
-      "description": "тип источника дохода"
+      "description": "income source type"
     },
     {
       "name": "NAME_EDUCATION_TYPE",
       "dtype": "String",
       "source": "application.csv",
-      "description": "уровень образования"
+      "description": "education level"
     },
     {
       "name": "NAME_FAMILY_STATUS",
       "dtype": "String",
       "source": "application.csv",
-      "description": "семейное положение"
+      "description": "family status"
     },
     {
       "name": "NAME_HOUSING_TYPE",
       "dtype": "String",
       "source": "application.csv",
-      "description": "тип жилья"
+      "description": "housing type"
     },
     {
       "name": "REGION_POPULATION_RELATIVE",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "относительная населённость региона"
+      "description": "relative population of the region"
     },
     {
       "name": "DAYS_BIRTH",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "возраст в днях (<0)"
+      "description": "age in days (<0)"
     },
     {
       "name": "DAYS_EMPLOYED",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "стаж в днях (<0; 365243 - аномалия, чистится)"
+      "description": "employment length in days (<0; 365243 - anomaly, cleaned)"
     },
     {
       "name": "DAYS_REGISTRATION",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "давность смены регистрации (дни)"
+      "description": "time since registration change (days)"
     },
     {
       "name": "DAYS_ID_PUBLISH",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "давность смены документа (дни)"
+      "description": "time since ID document change (days)"
     },
     {
       "name": "OWN_CAR_AGE",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "возраст автомобиля"
+      "description": "car age"
     },
     {
       "name": "FLAG_EMP_PHONE",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "указан рабочий телефон"
+      "description": "work phone provided"
     },
     {
       "name": "FLAG_WORK_PHONE",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "указан рабочий мобильный"
+      "description": "work mobile provided"
     },
     {
       "name": "FLAG_PHONE",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "указан домашний телефон"
+      "description": "home phone provided"
     },
     {
       "name": "FLAG_EMAIL",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "указан email"
+      "description": "email provided"
     },
     {
       "name": "OCCUPATION_TYPE",
       "dtype": "String",
       "source": "application.csv",
-      "description": "профессия"
+      "description": "occupation"
     },
     {
       "name": "CNT_FAM_MEMBERS",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "членов семьи"
+      "description": "family members"
     },
     {
       "name": "REGION_RATING_CLIENT",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "рейтинг региона клиента"
+      "description": "client region rating"
     },
     {
       "name": "REGION_RATING_CLIENT_W_CITY",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "рейтинг региона с учётом города"
+      "description": "region rating including city"
     },
     {
       "name": "EXT_SOURCE_1",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "внешний скоринговый балл 1"
+      "description": "external scoring score 1"
     },
     {
       "name": "EXT_SOURCE_2",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "внешний скоринговый балл 2"
+      "description": "external scoring score 2"
     },
     {
       "name": "EXT_SOURCE_3",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "внешний скоринговый балл 3"
+      "description": "external scoring score 3"
     },
     {
       "name": "DAYS_LAST_PHONE_CHANGE",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "давность смены телефона (дни)"
+      "description": "time since phone change (days)"
     },
     {
       "name": "AMT_REQ_CREDIT_BUREAU_QRT",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "запросов в бюро за квартал"
+      "description": "bureau inquiries in the last quarter"
     },
     {
       "name": "AMT_REQ_CREDIT_BUREAU_YEAR",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "запросов в бюро за год"
+      "description": "bureau inquiries in the last year"
     },
     {
       "name": "ORGANIZATION_TYPE",
       "dtype": "String",
       "source": "application.csv",
-      "description": "тип организации-работодателя"
+      "description": "employer organization type"
     },
     {
       "name": "DAYS_EMPLOYED_ANOM",
       "dtype": "Int8",
       "source": "application.csv",
-      "description": "флаг аномалии стажа (DAYS_EMPLOYED==365243)"
+      "description": "employment anomaly flag (DAYS_EMPLOYED==365243)"
     },
     {
       "name": "CREDIT_INCOME_RATIO",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "сумма кредита / доход"
+      "description": "credit amount / income"
     },
     {
       "name": "ANNUITY_INCOME_RATIO",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "аннуитет / доход"
+      "description": "annuity / income"
     },
     {
       "name": "CREDIT_ANNUITY_RATIO",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "сумма кредита / аннуитет (прокси срока)"
+      "description": "credit amount / annuity (term proxy)"
     },
     {
       "name": "GOODS_CREDIT_RATIO",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "стоимость товара / сумма кредита"
+      "description": "goods price / credit amount"
     },
     {
       "name": "EMPLOYED_BIRTH_RATIO",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "стаж / возраст"
+      "description": "employment length / age"
     },
     {
       "name": "INCOME_PER_PERSON",
       "dtype": "Float64",
       "source": "application.csv",
-      "description": "доход на члена семьи"
+      "description": "income per family member"
     },
     {
       "name": "BUREAU_COUNT",
       "dtype": "UInt32",
       "source": "bureau.csv",
-      "description": "число записей (BUREAU) на клиента"
+      "description": "number of records (BUREAU) per client"
     },
     {
       "name": "BUREAU_DAYS_CREDIT_MEAN",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "среднее DAYS_CREDIT: давность кредитов в бюро (дни, <0 - прошлое)"
+      "description": "mean DAYS_CREDIT: age of bureau credits (days, <0 - past)"
     },
     {
       "name": "BUREAU_DAYS_CREDIT_MIN",
       "dtype": "Int64",
       "source": "bureau.csv",
-      "description": "минимум DAYS_CREDIT: давность кредитов в бюро (дни, <0 - прошлое)"
+      "description": "min DAYS_CREDIT: age of bureau credits (days, <0 - past)"
     },
     {
       "name": "BUREAU_DAYS_CREDIT_MAX",
       "dtype": "Int64",
       "source": "bureau.csv",
-      "description": "максимум DAYS_CREDIT: давность кредитов в бюро (дни, <0 - прошлое)"
+      "description": "max DAYS_CREDIT: age of bureau credits (days, <0 - past)"
     },
     {
       "name": "BUREAU_CREDIT_DAY_OVERDUE_MEAN",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "среднее CREDIT_DAY_OVERDUE: дней просрочки на отчётную дату"
+      "description": "mean CREDIT_DAY_OVERDUE: days past due as of the reporting date"
     },
     {
       "name": "BUREAU_CREDIT_DAY_OVERDUE_MAX",
       "dtype": "Int64",
       "source": "bureau.csv",
-      "description": "максимум CREDIT_DAY_OVERDUE: дней просрочки на отчётную дату"
+      "description": "max CREDIT_DAY_OVERDUE: days past due as of the reporting date"
     },
     {
       "name": "BUREAU_AMT_CREDIT_SUM_SUM",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "сумма AMT_CREDIT_SUM: сумма кредита по записи бюро"
+      "description": "sum AMT_CREDIT_SUM: credit amount per bureau record"
     },
     {
       "name": "BUREAU_AMT_CREDIT_SUM_MEAN",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "среднее AMT_CREDIT_SUM: сумма кредита по записи бюро"
+      "description": "mean AMT_CREDIT_SUM: credit amount per bureau record"
     },
     {
       "name": "BUREAU_AMT_CREDIT_SUM_MAX",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "максимум AMT_CREDIT_SUM: сумма кредита по записи бюро"
+      "description": "max AMT_CREDIT_SUM: credit amount per bureau record"
     },
     {
       "name": "BUREAU_AMT_CREDIT_SUM_DEBT_SUM",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "сумма AMT_CREDIT_SUM_DEBT: текущий долг по кредиту бюро"
+      "description": "sum AMT_CREDIT_SUM_DEBT: current debt on the bureau credit"
     },
     {
       "name": "BUREAU_AMT_CREDIT_SUM_DEBT_MEAN",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "среднее AMT_CREDIT_SUM_DEBT: текущий долг по кредиту бюро"
+      "description": "mean AMT_CREDIT_SUM_DEBT: current debt on the bureau credit"
     },
     {
       "name": "BUREAU_AMT_CREDIT_SUM_OVERDUE_SUM",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "сумма AMT_CREDIT_SUM_OVERDUE: просроченная сумма"
+      "description": "sum AMT_CREDIT_SUM_OVERDUE: overdue amount"
     },
     {
       "name": "BUREAU_AMT_CREDIT_MAX_OVERDUE_MEAN",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "среднее AMT_CREDIT_MAX_OVERDUE: макс. историческая просрочка"
+      "description": "mean AMT_CREDIT_MAX_OVERDUE: max historical overdue"
     },
     {
       "name": "BUREAU_AMT_CREDIT_MAX_OVERDUE_MAX",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "максимум AMT_CREDIT_MAX_OVERDUE: макс. историческая просрочка"
+      "description": "max AMT_CREDIT_MAX_OVERDUE: max historical overdue"
     },
     {
       "name": "BUREAU_CNT_CREDIT_PROLONG_SUM",
       "dtype": "Int64",
       "source": "bureau.csv",
-      "description": "сумма CNT_CREDIT_PROLONG: число пролонгаций кредита"
+      "description": "sum CNT_CREDIT_PROLONG: number of credit prolongations"
     },
     {
       "name": "BUREAU_DAYS_CREDIT_UPDATE_MEAN",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "среднее DAYS_CREDIT_UPDATE: давность обновления записи бюро"
+      "description": "mean DAYS_CREDIT_UPDATE: age of the bureau record update"
     },
     {
       "name": "BUREAU_BB_MONTHS_COUNT_MEAN",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "среднее BB_MONTHS_COUNT: число месяцев истории в bureau_balance"
+      "description": "mean BB_MONTHS_COUNT: number of months of history in bureau_balance"
     },
     {
       "name": "BUREAU_BB_MONTHS_COUNT_SUM",
       "dtype": "UInt32",
       "source": "bureau.csv",
-      "description": "сумма BB_MONTHS_COUNT: число месяцев истории в bureau_balance"
+      "description": "sum BB_MONTHS_COUNT: number of months of history in bureau_balance"
     },
     {
       "name": "BUREAU_BB_DPD_COUNT_SUM",
       "dtype": "Int64",
       "source": "bureau.csv",
-      "description": "сумма BB_DPD_COUNT: число месяцев с просрочкой (статусы 1-5)"
+      "description": "sum BB_DPD_COUNT: number of months with overdue (statuses 1-5)"
     },
     {
       "name": "BUREAU_BB_DPD_COUNT_MEAN",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "среднее BB_DPD_COUNT: число месяцев с просрочкой (статусы 1-5)"
+      "description": "mean BB_DPD_COUNT: number of months with overdue (statuses 1-5)"
     },
     {
       "name": "BUREAU_ACTIVE_COUNT",
       "dtype": "Int64",
       "source": "bureau.csv",
-      "description": "число активных кредитов в бюро"
+      "description": "number of active bureau credits"
     },
     {
       "name": "BUREAU_CLOSED_COUNT",
       "dtype": "Int64",
       "source": "bureau.csv",
-      "description": "число закрытых кредитов в бюро"
+      "description": "number of closed bureau credits"
     },
     {
       "name": "PREV_COUNT",
       "dtype": "UInt32",
       "source": "previous_application.csv",
-      "description": "число записей (PREV) на клиента"
+      "description": "number of records (PREV) per client"
     },
     {
       "name": "PREV_AMT_APPLICATION_MEAN",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "среднее AMT_APPLICATION: запрошенная сумма по прошлой заявке"
+      "description": "mean AMT_APPLICATION: requested amount on the prior application"
     },
     {
       "name": "PREV_AMT_APPLICATION_SUM",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "сумма AMT_APPLICATION: запрошенная сумма по прошлой заявке"
+      "description": "sum AMT_APPLICATION: requested amount on the prior application"
     },
     {
       "name": "PREV_AMT_APPLICATION_MAX",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "максимум AMT_APPLICATION: запрошенная сумма по прошлой заявке"
+      "description": "max AMT_APPLICATION: requested amount on the prior application"
     },
     {
       "name": "PREV_AMT_CREDIT_MEAN",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "среднее AMT_CREDIT: одобренная сумма по прошлой заявке"
+      "description": "mean AMT_CREDIT: approved amount on the prior application"
     },
     {
       "name": "PREV_AMT_CREDIT_SUM",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "сумма AMT_CREDIT: одобренная сумма по прошлой заявке"
+      "description": "sum AMT_CREDIT: approved amount on the prior application"
     },
     {
       "name": "PREV_AMT_CREDIT_MAX",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "максимум AMT_CREDIT: одобренная сумма по прошлой заявке"
+      "description": "max AMT_CREDIT: approved amount on the prior application"
     },
     {
       "name": "PREV_AMT_DOWN_PAYMENT_MEAN",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "среднее AMT_DOWN_PAYMENT: первоначальный взнос"
+      "description": "mean AMT_DOWN_PAYMENT: down payment"
     },
     {
       "name": "PREV_DAYS_DECISION_MEAN",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "среднее DAYS_DECISION: давность решения по прошлой заявке"
+      "description": "mean DAYS_DECISION: age of the decision on the prior application"
     },
     {
       "name": "PREV_DAYS_DECISION_MIN",
       "dtype": "Int64",
       "source": "previous_application.csv",
-      "description": "минимум DAYS_DECISION: давность решения по прошлой заявке"
+      "description": "min DAYS_DECISION: age of the decision on the prior application"
     },
     {
       "name": "PREV_DAYS_DECISION_MAX",
       "dtype": "Int64",
       "source": "previous_application.csv",
-      "description": "максимум DAYS_DECISION: давность решения по прошлой заявке"
+      "description": "max DAYS_DECISION: age of the decision on the prior application"
     },
     {
       "name": "PREV_CNT_PAYMENT_MEAN",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "среднее CNT_PAYMENT: срок кредита в платежах"
+      "description": "mean CNT_PAYMENT: credit term in payments"
     },
     {
       "name": "PREV_CNT_PAYMENT_SUM",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "сумма CNT_PAYMENT: срок кредита в платежах"
+      "description": "sum CNT_PAYMENT: credit term in payments"
     },
     {
       "name": "PREV_APP_CREDIT_RATIO_MEAN",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "среднее APP_CREDIT_RATIO: запрошено/одобрено (derived)"
+      "description": "mean APP_CREDIT_RATIO: requested/approved (derived)"
     },
     {
       "name": "PREV_APP_CREDIT_RATIO_MAX",
       "dtype": "Float64",
       "source": "previous_application.csv",
-      "description": "максимум APP_CREDIT_RATIO: запрошено/одобрено (derived)"
+      "description": "max APP_CREDIT_RATIO: requested/approved (derived)"
     },
     {
       "name": "PREV_APPROVED_COUNT",
       "dtype": "Int64",
       "source": "previous_application.csv",
-      "description": "число одобренных заявок"
+      "description": "number of approved applications"
     },
     {
       "name": "PREV_REFUSED_COUNT",
       "dtype": "Int64",
       "source": "previous_application.csv",
-      "description": "число отклонённых заявок"
+      "description": "number of refused applications"
     },
     {
       "name": "INST_COUNT",
       "dtype": "UInt32",
       "source": "installments_payments.csv",
-      "description": "число записей (INST) на клиента"
+      "description": "number of records (INST) per client"
     },
     {
       "name": "INST_PAYMENT_DIFF_MEAN",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "среднее PAYMENT_DIFF: недоплата = план − факт (derived)"
+      "description": "mean PAYMENT_DIFF: underpayment = planned - actual (derived)"
     },
     {
       "name": "INST_PAYMENT_DIFF_SUM",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "сумма PAYMENT_DIFF: недоплата = план − факт (derived)"
+      "description": "sum PAYMENT_DIFF: underpayment = planned - actual (derived)"
     },
     {
       "name": "INST_PAYMENT_DIFF_MAX",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "максимум PAYMENT_DIFF: недоплата = план − факт (derived)"
+      "description": "max PAYMENT_DIFF: underpayment = planned - actual (derived)"
     },
     {
       "name": "INST_PAYMENT_RATIO_MEAN",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "среднее PAYMENT_RATIO: факт/план платежа (derived)"
+      "description": "mean PAYMENT_RATIO: actual/planned payment (derived)"
     },
     {
       "name": "INST_PAYMENT_RATIO_MIN",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "минимум PAYMENT_RATIO: факт/план платежа (derived)"
+      "description": "min PAYMENT_RATIO: actual/planned payment (derived)"
     },
     {
       "name": "INST_DPD_MEAN",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "среднее DPD: дней просрочки платежа (derived)"
+      "description": "mean DPD: days past due on the payment (derived)"
     },
     {
       "name": "INST_DPD_MAX",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "максимум DPD: дней просрочки платежа (derived)"
+      "description": "max DPD: days past due on the payment (derived)"
     },
     {
       "name": "INST_DPD_SUM",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "сумма DPD: дней просрочки платежа (derived)"
+      "description": "sum DPD: days past due on the payment (derived)"
     },
     {
       "name": "INST_DBD_MEAN",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "среднее DBD: дней до срока платежа (derived)"
+      "description": "mean DBD: days before the payment due date (derived)"
     },
     {
       "name": "INST_AMT_PAYMENT_SUM",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "сумма AMT_PAYMENT: фактический платёж"
+      "description": "sum AMT_PAYMENT: actual payment"
     },
     {
       "name": "INST_AMT_PAYMENT_MEAN",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "среднее AMT_PAYMENT: фактический платёж"
+      "description": "mean AMT_PAYMENT: actual payment"
     },
     {
       "name": "INST_AMT_INSTALMENT_SUM",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "сумма AMT_INSTALMENT: плановый платёж"
+      "description": "sum AMT_INSTALMENT: planned payment"
     },
     {
       "name": "INST_AMT_INSTALMENT_MEAN",
       "dtype": "Float64",
       "source": "installments_payments.csv",
-      "description": "среднее AMT_INSTALMENT: плановый платёж"
+      "description": "mean AMT_INSTALMENT: planned payment"
     },
     {
       "name": "POS_COUNT",
       "dtype": "UInt32",
       "source": "POS_CASH_balance.csv",
-      "description": "число записей (POS) на клиента"
+      "description": "number of records (POS) per client"
     },
     {
       "name": "POS_MONTHS_BALANCE_MEAN",
       "dtype": "Float64",
       "source": "POS_CASH_balance.csv",
-      "description": "среднее MONTHS_BALANCE: глубина истории POS (мес., <0 - прошлое)"
+      "description": "mean MONTHS_BALANCE: POS history depth (months, <0 - past)"
     },
     {
       "name": "POS_MONTHS_BALANCE_MIN",
       "dtype": "Int64",
       "source": "POS_CASH_balance.csv",
-      "description": "минимум MONTHS_BALANCE: глубина истории POS (мес., <0 - прошлое)"
+      "description": "min MONTHS_BALANCE: POS history depth (months, <0 - past)"
     },
     {
       "name": "POS_SK_DPD_MEAN",
       "dtype": "Float64",
       "source": "POS_CASH_balance.csv",
-      "description": "среднее SK_DPD: дней просрочки POS"
+      "description": "mean SK_DPD: POS days past due"
     },
     {
       "name": "POS_SK_DPD_MAX",
       "dtype": "Int64",
       "source": "POS_CASH_balance.csv",
-      "description": "максимум SK_DPD: дней просрочки POS"
+      "description": "max SK_DPD: POS days past due"
     },
     {
       "name": "POS_SK_DPD_DEF_MEAN",
       "dtype": "Float64",
       "source": "POS_CASH_balance.csv",
-      "description": "среднее SK_DPD_DEF: дней просрочки POS (с учётом толеранса)"
+      "description": "mean SK_DPD_DEF: POS days past due (with tolerance)"
     },
     {
       "name": "POS_SK_DPD_DEF_MAX",
       "dtype": "Int64",
       "source": "POS_CASH_balance.csv",
-      "description": "максимум SK_DPD_DEF: дней просрочки POS (с учётом толеранса)"
+      "description": "max SK_DPD_DEF: POS days past due (with tolerance)"
     },
     {
       "name": "POS_CNT_INSTALMENT_FUTURE_MEAN",
       "dtype": "Float64",
       "source": "POS_CASH_balance.csv",
-      "description": "среднее CNT_INSTALMENT_FUTURE: оставшиеся платежи POS"
+      "description": "mean CNT_INSTALMENT_FUTURE: remaining POS payments"
     },
     {
       "name": "POS_CNT_INSTALMENT_FUTURE_MIN",
       "dtype": "Float64",
       "source": "POS_CASH_balance.csv",
-      "description": "минимум CNT_INSTALMENT_FUTURE: оставшиеся платежи POS"
+      "description": "min CNT_INSTALMENT_FUTURE: remaining POS payments"
     },
     {
       "name": "CC_COUNT",
       "dtype": "UInt32",
       "source": "credit_card_balance.csv",
-      "description": "число записей (CC) на клиента"
+      "description": "number of records (CC) per client"
     },
     {
       "name": "CC_AMT_BALANCE_MEAN",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "среднее AMT_BALANCE: баланс по карте"
+      "description": "mean AMT_BALANCE: card balance"
     },
     {
       "name": "CC_AMT_BALANCE_MAX",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "максимум AMT_BALANCE: баланс по карте"
+      "description": "max AMT_BALANCE: card balance"
     },
     {
       "name": "CC_AMT_CREDIT_LIMIT_ACTUAL_MEAN",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "среднее AMT_CREDIT_LIMIT_ACTUAL: кредитный лимит карты"
+      "description": "mean AMT_CREDIT_LIMIT_ACTUAL: card credit limit"
     },
     {
       "name": "CC_AMT_CREDIT_LIMIT_ACTUAL_MAX",
       "dtype": "Int64",
       "source": "credit_card_balance.csv",
-      "description": "максимум AMT_CREDIT_LIMIT_ACTUAL: кредитный лимит карты"
+      "description": "max AMT_CREDIT_LIMIT_ACTUAL: card credit limit"
     },
     {
       "name": "CC_UTILIZATION_MEAN",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "среднее UTILIZATION: утилизация = баланс/лимит (derived)"
+      "description": "mean UTILIZATION: utilization = balance/limit (derived)"
     },
     {
       "name": "CC_UTILIZATION_MAX",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "максимум UTILIZATION: утилизация = баланс/лимит (derived)"
+      "description": "max UTILIZATION: utilization = balance/limit (derived)"
     },
     {
       "name": "CC_AMT_DRAWINGS_CURRENT_SUM",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "сумма AMT_DRAWINGS_CURRENT: снятия по карте"
+      "description": "sum AMT_DRAWINGS_CURRENT: card drawings"
     },
     {
       "name": "CC_AMT_DRAWINGS_CURRENT_MEAN",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "среднее AMT_DRAWINGS_CURRENT: снятия по карте"
+      "description": "mean AMT_DRAWINGS_CURRENT: card drawings"
     },
     {
       "name": "CC_AMT_PAYMENT_CURRENT_SUM",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "сумма AMT_PAYMENT_CURRENT: платежи по карте"
+      "description": "sum AMT_PAYMENT_CURRENT: card payments"
     },
     {
       "name": "CC_AMT_PAYMENT_CURRENT_MEAN",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "среднее AMT_PAYMENT_CURRENT: платежи по карте"
+      "description": "mean AMT_PAYMENT_CURRENT: card payments"
     },
     {
       "name": "CC_SK_DPD_MEAN",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "среднее SK_DPD: дней просрочки по карте"
+      "description": "mean SK_DPD: card days past due"
     },
     {
       "name": "CC_SK_DPD_MAX",
       "dtype": "Int64",
       "source": "credit_card_balance.csv",
-      "description": "максимум SK_DPD: дней просрочки по карте"
+      "description": "max SK_DPD: card days past due"
     },
     {
       "name": "CC_SK_DPD_DEF_MEAN",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "среднее SK_DPD_DEF: дней просрочки по карте (толеранс)"
+      "description": "mean SK_DPD_DEF: card days past due (tolerance)"
     },
     {
       "name": "CC_SK_DPD_DEF_MAX",
       "dtype": "Int64",
       "source": "credit_card_balance.csv",
-      "description": "максимум SK_DPD_DEF: дней просрочки по карте (толеранс)"
+      "description": "max SK_DPD_DEF: card days past due (tolerance)"
     },
     {
       "name": "CC_CNT_DRAWINGS_CURRENT_SUM",
       "dtype": "Int64",
       "source": "credit_card_balance.csv",
-      "description": "сумма CNT_DRAWINGS_CURRENT: число снятий по карте"
+      "description": "sum CNT_DRAWINGS_CURRENT: number of card drawings"
     },
     {
       "name": "CC_CNT_DRAWINGS_CURRENT_MEAN",
       "dtype": "Float64",
       "source": "credit_card_balance.csv",
-      "description": "среднее CNT_DRAWINGS_CURRENT: число снятий по карте"
+      "description": "mean CNT_DRAWINGS_CURRENT: number of card drawings"
     }
   ]
 }

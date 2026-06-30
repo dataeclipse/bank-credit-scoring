@@ -40,7 +40,7 @@ def _df_to_md(frame: Any, columns: list[str], max_rows: int | None = None) -> st
 
 
 def _metrics_table(results: dict[str, dict[str, float]]) -> str:
-    head = "| Модель | ROC-AUC | PR-AUC | KS | Gini |\n|---|---|---|---|---|"
+    head = "| Model | ROC-AUC | PR-AUC | KS | Gini |\n|---|---|---|---|---|"
     rows = [
         f"| {name} | {m['roc_auc']:.4f} | {m['pr_auc']:.4f} | {m['ks']:.4f} | {m['gini']:.4f} |"
         for name, m in results.items()
@@ -56,29 +56,30 @@ def _write_comparison(
     n_holdout: int,
 ) -> None:
     lines = [
-        "# Сравнение моделей (Фаза 2)",
+        "# Model comparison (Phase 2)",
         "",
-        f"Holdout: {n_holdout} заявок (Фаза 1 split, seed 42). "
-        f"Фиче-база: {n_features} фич для всех моделей.",
+        f"Holdout: {n_holdout} applications (Phase 1 split, seed 42). "
+        f"Feature base: {n_features} features for all models.",
         "",
-        "## Метрики на holdout",
+        "## Metrics on holdout",
         _metrics_table(results),
         "",
-        "## Scorecard - честная CV (биннинг внутри фолдов)",
+        "## Scorecard - honest CV (binning inside folds)",
         _metrics_table({"scorecard (CV mean)": sc.cv_metrics}),
         "",
-        "## Методология",
-        "- HPO (Optuna, TPE, seed) на стратифицированной подвыборке train; финальные модели - "
-        "на полном train. CatBoost: `max_ctr_complexity=1` (без комбинаций категориальных).",
+        "## Methodology",
+        "- HPO (Optuna, TPE, seed) on a stratified train subsample; final models - "
+        "on the full train. CatBoost: `max_ctr_complexity=1` (no categorical combinations).",
         "",
-        "## Консистентность фиче-базы",
-        f"- Вход одинаковый: **{n_features} фич**.",
-        f"- **Scorecard**: WOE + отбор по IV≥0.02 → **{len(sc.selected_features)}** фич "
-        "(парсимоничен по дизайну).",
-        "- **LightGBM**: категориальные как `category` dtype, пропуски нативно.",
-        "- **CatBoost**: нативные категориальные (без one-hot) + пропуски нативно.",
-        "- Расхождение: scorecard берёт подмножество (IV-отбор) и WOE; GBDT - все фичи и "
-        "сырые пропуски. Сравнение корректно (один holdout, вход), интерпретация разная.",
+        "## Feature base consistency",
+        f"- Input is identical: **{n_features} features**.",
+        f"- **Scorecard**: WOE + selection by IV≥0.02 → **{len(sc.selected_features)}** features "
+        "(parsimonious by design).",
+        "- **LightGBM**: categoricals as `category` dtype, missing values handled natively.",
+        "- **CatBoost**: native categoricals (no one-hot) + missing values handled natively.",
+        "- Difference: scorecard takes a subset (IV selection) and WOE; GBDT - all features and "
+        "raw missing values. The comparison is fair (one holdout, same input), "
+        "interpretation differs.",
     ]
     (docs_dir / "model_comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -92,33 +93,33 @@ def _write_selection(
     gap = best["gini"] - scorecard["gini"]
     if best_name != "scorecard" and gap > 0.03:
         verdict = (
-            f"**В прод: {best_name}** (Gini {best['gini']:.3f}, KS {best['ks']:.3f}) - выше "
-            f"scorecard (Gini {scorecard['gini']:.3f}) на Δ Gini {gap:.3f}. Scorecard - "
-            "интерпретируемый challenger и регуляторная объяснимость (баллы/reason codes)."
+            f"**In prod: {best_name}** (Gini {best['gini']:.3f}, KS {best['ks']:.3f}) - above "
+            f"scorecard (Gini {scorecard['gini']:.3f}) by Δ Gini {gap:.3f}. Scorecard - an "
+            "interpretable challenger and regulatory explainability (points/reason codes)."
         )
     else:
         verdict = (
-            f"**В прод: scorecard** - отставание от лучшего GBDT по Gini невелико ({gap:.3f}), а "
-            "интерпретируемость и регуляторная защищаемость перевешивают."
+            f"**In prod: scorecard** - the gap to the best GBDT by Gini is small ({gap:.3f}), and "
+            "interpretability and regulatory defensibility outweigh it."
         )
     lines = [
-        "# Выбор модели в прод (Фаза 2)",
+        "# Production model selection (Phase 2)",
         "",
-        "## Ранжирование по Gini (holdout)",
+        "## Ranking by Gini (holdout)",
         _metrics_table(dict(ranked)),
         "",
-        "## Решение",
+        "## Decision",
         verdict,
         "",
-        "## Trade-off «качество ↔ интерпретируемость»",
-        "- **GBDT (LightGBM/CatBoost)**: выше Gini/KS, ловят нелинейности и взаимодействия; "
-        "нативно работают с пропусками и cat. Минус - чёрный ящик (SHAP в Фазе 3).",
-        "- **Scorecard (WOE + логистика)**: прозрачные баллы, монотонные бины, IV-отбор; легко "
-        "валидируется и объясняется регулятору. Минус - обычно ниже по качеству.",
-        f"- Финальный scorecard использует {len(sc.selected_features)} фич против полной базы "
-        "у GBDT.",
+        '## Trade-off "quality ↔ interpretability"',
+        "- **GBDT (LightGBM/CatBoost)**: higher Gini/KS, capture nonlinearities and interactions; "
+        "handle missing values and cat natively. Downside - a black box (SHAP in Phase 3).",
+        "- **Scorecard (WOE + logistic)**: transparent points, monotonic bins, IV selection; easy "
+        "to validate and explain to a regulator. Downside - usually lower quality.",
+        f"- The final scorecard uses {len(sc.selected_features)} features versus the full base "
+        "of GBDT.",
         "",
-        "_Калибровка вероятностей, SHAP reason codes и fairness - Фаза 3._",
+        "_Probability calibration, SHAP reason codes and fairness - Phase 3._",
     ]
     (docs_dir / "model_selection.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -126,12 +127,12 @@ def _write_selection(
 def _write_scorecard_docs(docs_dir: Path, sc: ScorecardResult) -> None:
     selected_iv = sc.iv_table[sc.iv_table["selected"]]
     lines = [
-        "# Scorecard - фичи, IV и баллы (Фаза 2)",
+        "# Scorecard - features, IV and points (Phase 2)",
         "",
-        f"Отобрано **{len(sc.selected_features)}** фич по IV≥0.02. Полная таблица баллов - "
+        f"Selected **{len(sc.selected_features)}** features by IV≥0.02. Full points table - "
         "`scorecard_points.csv`.",
         "",
-        "## Отобранные фичи по IV",
+        "## Selected features by IV",
         _df_to_md(selected_iv, ["name", "dtype", "iv"]),
     ]
     (docs_dir / "scorecard.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -192,12 +193,12 @@ def _subsample(data: ModelingData, n: int, seed: int) -> ModelingData:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Train scorecard + GBDT, compare, log to MLflow.")
-    parser.add_argument("--trials", type=int, default=30, help="Optuna trials на модель")
-    parser.add_argument("--no-tune", action="store_true", help="без Optuna (дефолтные параметры)")
-    parser.add_argument("--tune-sample", type=int, default=40000, help="размер подвыборки для HPO")
-    parser.add_argument("--gpu", action="store_true", help="CatBoost на GPU (task_type=GPU)")
+    parser.add_argument("--trials", type=int, default=30, help="Optuna trials per model")
+    parser.add_argument("--no-tune", action="store_true", help="no Optuna (default parameters)")
+    parser.add_argument("--tune-sample", type=int, default=40000, help="subsample size for HPO")
+    parser.add_argument("--gpu", action="store_true", help="CatBoost on GPU (task_type=GPU)")
     parser.add_argument(
-        "--sample", type=int, default=None, help="subsample train для smoke-проверки"
+        "--sample", type=int, default=None, help="subsample train for a smoke check"
     )
     parser.add_argument("--docs-dir", default="docs")
     args = parser.parse_args(argv)

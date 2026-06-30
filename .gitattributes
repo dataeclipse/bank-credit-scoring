@@ -1,7 +1,7 @@
-# Нормализуем переводы строк: в репозитории всегда LF.
+# Normalize line endings: always LF in the repo.
 * text=auto eol=lf
 
-# Бинарники - без преобразований.
+# Binary files - no conversion.
 *.png binary
 *.jpg binary
 *.jpeg binary

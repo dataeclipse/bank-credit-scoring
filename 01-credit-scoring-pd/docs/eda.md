@@ -1,11 +1,11 @@
-# EDA - выводы (Home Credit, Фаза 1)
+# EDA - findings (Home Credit, Phase 1)
 
-- Витрина: 356255 клиентов x 123 колонок (120 фич).
-- Баланс классов: дефолтов 24825 из 307511 (8.07%) - сильный дисбаланс (~1:11), учитывать при обучении/метриках.
-- Аномалия DAYS_EMPLOYED==365243: 55374 (18.0%) - заглушка неработающих; вынесена во флаг и вычищена в null.
-- EXT_SOURCE_1/2/3 - сильнейшие предикторы (макс. |corr| с таргетом), но с пропусками.
+- Feature mart: 356255 clients x 123 columns (120 features).
+- Class balance: 24825 defaults out of 307511 (8.07%) - strong imbalance (~1:11), account for it in training/metrics.
+- DAYS_EMPLOYED==365243 anomaly: 55374 (18.0%) - placeholder for the unemployed; moved to a flag and cleaned to null.
+- EXT_SOURCE_1/2/3 - the strongest predictors (max |corr| with the target), but with missing values.
 
-## Топ-15 пропусков
+## Top 15 missing values
 
 - `CC_AMT_PAYMENT_CURRENT_MEAN`: 79.8%
 - `CC_UTILIZATION_MEAN`: 71.2%
@@ -23,7 +23,7 @@
 - `CC_SK_DPD_DEF_MEAN`: 70.9%
 - `CC_SK_DPD_DEF_MAX`: 70.9%
 
-## Топ-15 корреляций с TARGET
+## Top 15 correlations with TARGET
 
 - `EXT_SOURCE_3`: -0.179
 - `EXT_SOURCE_2`: -0.160

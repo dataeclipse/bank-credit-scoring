@@ -1,8 +1,8 @@
-# Scorecard - фичи, IV и баллы (Фаза 2)
+# Scorecard - features, IV and points (Phase 2)
 
-Отобрано **76** фич по IV≥0.02. Полная таблица баллов - `scorecard_points.csv`.
+Selected **76** features by IV>=0.02. Full points table - `scorecard_points.csv`.
 
-## Отобранные фичи по IV
+## Selected features by IV
 | name | dtype | iv |
 |---|---|---|
 | EXT_SOURCE_3 | numerical | 0.3353 |

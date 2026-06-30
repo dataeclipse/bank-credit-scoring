@@ -1,13 +1,13 @@
 [project]
 name = "pd-scoring"
 version = "1.0.0"
-description = "Кредитный скоринг (PD) как production-сервис: WOE-scorecard + GBDT, калибровка, SHAP, fairness, мониторинг дрейфа."
+description = "Credit scoring (PD) as a production service: WOE scorecard + GBDT, calibration, SHAP, fairness, drift monitoring."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "dataeclipse" }]
 
-# Лёгкое ядро - нужно скелету сервиса и конфигу. Ставится `uv sync`.
+# Lightweight core - needed by the service skeleton and config. Installed by `uv sync`.
 dependencies = [
     "pydantic>=2.11",
     "pydantic-settings>=2.6",
@@ -19,13 +19,13 @@ dependencies = [
     "prometheus-client>=0.20",
 ]
 
-# Зависимости разделены на extra (floor-пины на 30.06.2026, новейшие совместимые версии):
-#   data - лёгкий слой данных/EDA (Фаза 1): polars/sklearn/pyarrow/kaggle. CI ставит его.
-#   ml   - тяжёлые модели/трекинг (Фаза 2+); включает data.
+# Dependencies are split into extras (floor pins as of 2026-06-30, latest compatible versions):
+#   data - lightweight data/EDA layer (Phase 1): polars/sklearn/pyarrow/kaggle. CI installs it.
+#   ml   - heavy models/tracking (Phase 2+); includes data.
 [project.optional-dependencies]
 data = [
-    # <2.5: numba (через shap, extra explain) пока не поддерживает numpy 2.5 - иначе тянется
-    # древний numba 0.53/llvmlite 0.36, не билдящийся на py3.12. 2.4.x устраивает всех.
+    # <2.5: numba (via shap, extra explain) does not support numpy 2.5 yet - otherwise it pulls
+    # ancient numba 0.53/llvmlite 0.36 that does not build on py3.12. 2.4.x suits everyone.
     "numpy>=2.4,<2.5",
     "pandas>=2.2",
     "polars>=1.0",
@@ -49,18 +49,18 @@ ml = [
     "mlflow>=2.18",
     "optuna>=4.0",
 ]
-# Объяснимость / справедливость / дрейф (Фаза 3+). Отдельный extra: shap тянет numba/llvmlite,
-# которые пока конфликтуют с numpy 2.x - разрешим в Фазе 3 (cap numpy либо обновлённый numba).
+# Explainability / fairness / drift (Phase 3+). Separate extra: shap pulls numba/llvmlite,
+# which currently conflict with numpy 2.x - resolved in Phase 3 (cap numpy or updated numba).
 explain = [
     "pd-scoring[ml]",
     "shap>=0.46",
     "fairlearn>=0.12",
     "evidently>=0.5",
 ]
-# Нагрузочный тест /score (Фаза 4). Ставится отдельно: uv sync --extra loadtest.
+# Load test for /score (Phase 4). Installed separately: uv sync --extra loadtest.
 loadtest = ["locust>=2.0"]
-# Минимальный runtime serving (Фаза 5, Docker): без mlflow/shap/numba/catboost - модель грузится
-# локально через joblib. uv sync --extra serve.
+# Minimal runtime serving (Phase 5, Docker): without mlflow/shap/numba/catboost - the model loads
+# locally via joblib. uv sync --extra serve.
 serve = [
     "numpy>=2.4,<2.5",
     "pandas>=2.2",
@@ -77,7 +77,7 @@ pd-scoring-evaluate = "pd_scoring.models.evaluate:main"
 pd-scoring-drift = "pd_scoring.monitoring.drift:main"
 pd-scoring-export-model = "pd_scoring.service.export_model:main"
 
-# PEP 735 dev-группа. `uv sync` ставит её по умолчанию.
+# PEP 735 dev group. `uv sync` installs it by default.
 [dependency-groups]
 dev = [
     "ruff>=0.7",
@@ -95,7 +95,7 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/pd_scoring"]
 
-# --- Качество кода ---
+# --- Code quality ---
 [tool.ruff]
 line-length = 100
 target-version = "py312"
@@ -104,7 +104,10 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
-# FastAPI Depends/Query/... в дефолтах аргументов - это паттерн фреймворка, не баг (B008).
+[tool.ruff.lint.per-file-ignores]
+"notebooks/**" = ["E501"]
+
+# FastAPI Depends/Query/... in argument defaults is a framework pattern, not a bug (B008).
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path", "fastapi.Body"]
 
@@ -117,7 +120,7 @@ strict = true
 mypy_path = "src"
 files = ["src"]
 
-# Библиотеки без type stubs - не ломаем strict-проверку их импортами.
+# Libraries without type stubs - do not break the strict check with their imports.
 [[tool.mypy.overrides]]
 module = [
     "sklearn.*",
@@ -139,13 +142,13 @@ module = [
 ]
 ignore_missing_imports = true
 
-# pandas/joblib без py.typed-стабов - глушим import-untyped (strict без pandas-stubs шумит).
+# pandas/joblib without py.typed stubs - silence import-untyped (strict without pandas-stubs is noisy).
 [[tool.mypy.overrides]]
 module = ["pandas", "pandas.*", "joblib", "joblib.*"]
 ignore_missing_imports = true
 
-# tracking.py подклассит mlflow.pyfunc.PythonModel (= Any при ignore_missing_imports). Какой код
-# type:ignore нужен - зависит от наличия mlflow (CI data-env vs explain-env) → не флагаем unused.
+# tracking.py subclasses mlflow.pyfunc.PythonModel (= Any under ignore_missing_imports). Which
+# type:ignore is needed depends on whether mlflow is present (CI data-env vs explain-env) -> do not flag unused.
 [[tool.mypy.overrides]]
 module = "pd_scoring.models.tracking"
 warn_unused_ignores = false
@@ -154,8 +157,8 @@ warn_unused_ignores = false
 testpaths = ["tests"]
 addopts = "-q --cov=pd_scoring --cov-report=term-missing"
 markers = [
-    "ml: тесты, требующие тяжёлого ML-стека (optbinning/lightgbm/catboost/optuna)",
-    "explain: тесты, требующие extra explain (shap/fairlearn)",
+    "ml: tests requiring the heavy ML stack (optbinning/lightgbm/catboost/optuna)",
+    "explain: tests requiring the explain extra (shap/fairlearn)",
 ]
 
 [tool.coverage.run]

@@ -5,120 +5,124 @@
 ![uv](https://img.shields.io/badge/deps-uv-purple)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Production-сервис оценки **вероятности дефолта (PD)** по кредитной заявке: REST-эндпоинт принимает
-заявку → возвращает PD, скоринговый балл, риск-сегмент и **топ-причины решения** (reason codes).
-Не «ещё один XGBoost на Home Credit», а то, что банк требует от рисковой модели: **WOE/scorecard рядом
-с GBDT**, **калибровка вероятностей**, **fairness-анализ**, **мониторинг дрейфа (PSI/CSI)**,
-**model card** в духе НБРК/SR 11-7 - и всё это в Docker одной командой.
-
-> Бейдж CI активируется после пуша в GitHub (замени `dataeclipse/bank-credit-scoring` на свой repo).
+A REST service that estimates the probability of default (PD) on a loan application. A request
+goes in; the response carries the PD, a scorecard-style score, a risk segment, and the top
+reasons behind the decision (reason codes). Around the model it also covers what a bank's model
+validation asks for: a WOE scorecard next to a gradient-boosted model, probability calibration,
+a fairness check, drift monitoring (PSI/CSI), and a model card in the style of NBRK / SR 11-7 -
+all runnable with one Docker command.
 
 ## Problem
-Команда кредитных рисков оценивает PD по заявке для решения о выдаче. Нужна не просто точная модель,
-а **защищаемая на валидации**: интерпретируемая (scorecard + reason codes), с корректной вероятностью
-(калибровка), проверенная на справедливость (fairness), с мониторингом стабильности (PSI/CSI) и
-воспроизводимым деплоем. Этот проект закрывает весь контур.
+A credit risk team scores PD on each application to decide whether to lend. The model has to be
+not just accurate but defensible at validation: interpretable (scorecard plus reason codes),
+well-calibrated, checked for fairness, monitored for stability over time (PSI/CSI), and
+reproducible to deploy. This project covers that whole loop.
 
 ## Data
-**Home Credit Default Risk** (Kaggle) - анонимизированные данные потребкредитования: заявки, история
-бюро, прошлые кредиты, платежи, баланс карт. `data/` в `.gitignore`. Загрузка - `make download`
-(Kaggle API; нужны `KAGGLE_USERNAME`/`KAGGLE_KEY` в `.env` + принятые правила соревнования).
+**Home Credit Default Risk** (Kaggle) - anonymized consumer-lending data: applications, bureau
+history, prior loans, payments, card balances. `data/` is in `.gitignore`. Download with
+`make download` (Kaggle API; needs `KAGGLE_USERNAME`/`KAGGLE_KEY` in `.env` and accepted
+competition rules).
 
 ## Architecture
 ```mermaid
 flowchart TD
-    A[Заявка + бюро + история] --> B[feature pipeline → витрина 120 фич]
+    A[Application + bureau + history] --> B[feature pipeline -> 120-feature mart]
     B --> C[WOE/IV + scorecard]
     B --> D[GBDT: LightGBM / CatBoost]
-    C --> E[Сравнение / выбор → LightGBM]
+    C --> E[Compare / select -> LightGBM]
     D --> E
-    E --> F[Калибровка → PD]
-    F --> G[SHAP reason codes + риск-сегмент]
+    E --> F[Calibration -> PD]
+    F --> G[SHAP reason codes + risk segment]
     G --> H[FastAPI /score · /healthz · /metrics]
     H --> R[(MLflow registry @champion)]
     H --> P[(Prometheus)]
-    B --> M[Evidently PSI/CSI + дрейф PD → алерт]
+    B --> M[Evidently PSI/CSI + PD drift -> alert]
     H -. docker compose .- DB[(PostgreSQL)]
 ```
 
 ## Quickstart - `docker compose up`
-Из каталога `01-credit-scoring-pd/`. Нужна обученная модель (см. ниже), затем:
+From the `01-credit-scoring-pd/` directory. A trained model is required (see below), then:
 ```bash
-make export-model        # запечь pd-lightgbm@champion → deploy/model/ (joblib)
+make export-model        # bake pd-lightgbm@champion -> deploy/model/ (joblib)
 docker compose -f infra/compose.yaml up --build      # api + postgres
 curl http://localhost:8000/healthz
 curl -X POST http://localhost:8000/score -H 'Content-Type: application/json' -d '{
   "AMT_INCOME_TOTAL": 135000, "AMT_CREDIT": 600000, "DAYS_BIRTH": -14000,
   "CODE_GENDER": "M", "EXT_SOURCE_1": 0.12, "EXT_SOURCE_2": 0.18, "EXT_SOURCE_3": 0.15 }'
 ```
-MLflow UI (опц.): `docker compose -f infra/compose.yaml --profile tools up`.
+MLflow UI (optional): `docker compose -f infra/compose.yaml --profile tools up`.
 
-**Полный путь с нуля** (нужны Kaggle-креды + `uv`):
+**Full path from scratch** (needs Kaggle credentials and `uv`):
 ```bash
 make install-ml                       # uv sync --extra ml
-make download && make features        # данные → витрина (data/ в .gitignore)
-make train                            # 3 модели → MLflow registry (pd-scoring-train)
+make download && make features        # data -> mart (data/ in .gitignore)
+make train                            # 3 models -> MLflow registry (pd-scoring-train)
 make export-model && docker compose -f infra/compose.yaml up --build
 ```
-Dev-команды: `make lint` · `make type` · `make test` · `make run` (uvicorn локально). Нет `make` на
-Windows - вызывай `uv run …` напрямую.
+Dev commands: `make lint` · `make type` · `make test` · `make run` (uvicorn locally). No `make`
+on Windows - call `uv run ...` directly.
 
 ## Results
-**Витрина**: 356 255 клиентов × 120 фич; дефолтов **8.07%** (~1:11). EDA: [docs/eda.md](docs/eda.md).
+**Mart**: 356,255 clients × 120 features; 8.07% defaults (~1:11). EDA: [docs/eda.md](docs/eda.md).
 
-**Модели** (holdout 61 503, stratified seed 42; всё в MLflow):
+**Models** (holdout 61,503, stratified seed 42; all in MLflow):
 
-| Модель | ROC-AUC | PR-AUC | KS | Gini |
+| Model | ROC-AUC | PR-AUC | KS | Gini |
 |---|---|---|---|---|
-| Scorecard (WOE, 76/120 фич) | 0.770 | 0.255 | 0.407 | 0.539 |
-| **LightGBM (прод)** | **0.790** | 0.287 | **0.440** | **0.579** |
+| Scorecard (WOE, 76/120 features) | 0.770 | 0.255 | 0.407 | 0.539 |
+| **LightGBM (prod)** | **0.790** | 0.287 | **0.440** | **0.579** |
 | CatBoost | 0.789 | 0.289 | 0.440 | 0.579 |
 
-→ **в прод LightGBM** (Gini 0.579); scorecard - интерпретируемый challenger.
+LightGBM goes to production (Gini 0.579); the scorecard stays as an interpretable challenger.
 [comparison](docs/model_comparison.md) · [selection](docs/model_selection.md).
 
-**Калибровка**: LightGBM уже откалиброван - Brier 0.066, **ECE 0.0028** (<0.01). [calibration.md](docs/calibration.md).
-**Объяснимость**: reason codes «за/против» по заявке. **Fairness**: пол DI 0.82, возраст DI 0.63
-(<0.8 - молодые в зоне риска). [explainability](docs/explainability.md) · [fairness](docs/fairness.md).
+**Calibration**: LightGBM is already well-calibrated - Brier 0.066, **ECE 0.0028** (<0.01).
+[calibration.md](docs/calibration.md).
+**Explainability**: per-application reason codes (for/against). **Fairness**: gender DI 0.82,
+age DI 0.63 (<0.8 - younger applicants are at higher risk of rejection).
+[explainability](docs/explainability.md) · [fairness](docs/fairness.md).
 
-### Пример `/score` (высокий риск)
+### `/score` example (high risk)
 ```json
 {"pd": 0.532, "score": 309, "segment": "high",
  "reason_codes": [
    {"feature": "EXT_SOURCE_3", "direction": "increases",
-    "description": "внешний скоринговый балл (источник 3) = 0.1 - повышает риск"},
+    "description": "external score (source 3) = 0.1 - increases risk"},
    {"feature": "DAYS_BIRTH", "direction": "decreases",
-    "description": "возраст в днях (<0) = -8500 - снижает риск"}],
+    "description": "age in days (<0) = -8500 - decreases risk"}],
  "model_version": "3"}
 ```
-Контракт + второй пример (low-risk): [docs/serving.md](docs/serving.md). Латентность /score: p50 ≈ 83 мс
-(бюджет в [load_test.md](docs/load_test.md)).
+Contract plus a second (low-risk) example: [docs/serving.md](docs/serving.md). `/score` latency:
+p50 ~= 83 ms (budget in [load_test.md](docs/load_test.md)).
 
-## Мониторинг дрейфа
-PSI/CSI входов + дрейф PD; алерт при **PSI > 0.2**. Демонстрация: `pd-scoring-drift --demo-drift` ловит
-подмену распределения. [docs/monitoring.md](docs/monitoring.md).
+## Drift monitoring
+PSI/CSI on inputs plus PD drift; alert at **PSI > 0.2**. Demo: `pd-scoring-drift --demo-drift`
+catches a distribution shift. [docs/monitoring.md](docs/monitoring.md).
 
 ## Model card
-[docs/model_card.md](docs/model_card.md) - назначение/scope, данные и ограничения, метрики, калибровка,
-объяснимость, fairness, ограничения, мониторинг, governance/версионирование (НБРК / SR 11-7 / Basel).
+[docs/model_card.md](docs/model_card.md) - purpose/scope, data and limitations, metrics,
+calibration, explainability, fairness, limitations, monitoring, governance/versioning
+(NBRK / SR 11-7 / Basel).
 
-## Ограничения
-Demo/портфолио (не боевое решение): прокси-группы анонимны; **reject inference** не делался
-(survivorship bias); **age-bias** (DI 0.63); на serving агрегаты истории = null (быстрый путь по данным
-заявки). Перед прод - независимая валидация модели.
+## Limitations
+Demo/portfolio (not a live lending decision): proxy groups are anonymized; **reject inference**
+was not done (survivorship bias); **age bias** (DI 0.63); at serving time history aggregates are
+null (a fast path on application data only). Independent model validation is needed before
+production.
 
 ## Deploy
-Короткая инструкция (Fly.io / VPS): [docs/deploy.md](docs/deploy.md).
+Short guide (Fly.io / VPS): [docs/deploy.md](docs/deploy.md).
 
 ## Roadmap
-| Фаза | Содержание |
+| Phase | Content |
 |---|---|
-| 0 ✅ | Скелет: структура, uv/pyproject, ruff/mypy/pytest/pre-commit, CI, `/healthz` |
-| 1 ✅ | Данные и витрина фичей (Home Credit, агрегации без утечек, EDA, split+seed) |
-| 2 ✅ | Две модели: WOE-scorecard + GBDT, метрики, MLflow, выбор в прод (LightGBM, Gini 0.579) |
-| 3 ✅ | Калибровка (ECE 0.003) + SHAP reason codes + fairness (Fairlearn) |
-| 4 ✅ | Сервис `/score` + Evidently PSI/CSI дрейф + нагрузочный тест (p50 83мс) |
-| 5 ✅ | Docker/compose + CI/CD (build образа) + финальная model card + README |
+| 0 ✅ | Skeleton: structure, uv/pyproject, ruff/mypy/pytest/pre-commit, CI, `/healthz` |
+| 1 ✅ | Data and feature mart (Home Credit, leak-free aggregates, EDA, split+seed) |
+| 2 ✅ | Two models: WOE scorecard + GBDT, metrics, MLflow, production pick (LightGBM, Gini 0.579) |
+| 3 ✅ | Calibration (ECE 0.003) + SHAP reason codes + fairness (Fairlearn) |
+| 4 ✅ | `/score` service + Evidently PSI/CSI drift + load test (p50 83 ms) |
+| 5 ✅ | Docker/compose + CI/CD (image build) + final model card + README |
 
 ## License
 [MIT](../LICENSE).

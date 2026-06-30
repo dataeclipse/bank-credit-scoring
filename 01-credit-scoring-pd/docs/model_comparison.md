@@ -1,25 +1,25 @@
-# Сравнение моделей (Фаза 2)
+# Model comparison (Phase 2)
 
-Holdout: 61503 заявок (Фаза 1 split, seed 42). Фиче-база: 120 фич для всех моделей.
+Holdout: 61503 applications (Phase 1 split, seed 42). Feature base: 120 features for all models.
 
-## Метрики на holdout
-| Модель | ROC-AUC | PR-AUC | KS | Gini |
+## Holdout metrics
+| Model | ROC-AUC | PR-AUC | KS | Gini |
 |---|---|---|---|---|
 | scorecard | 0.7696 | 0.2552 | 0.4065 | 0.5392 |
 | lightgbm | 0.7895 | 0.2872 | 0.4401 | 0.5789 |
 | catboost | 0.7893 | 0.2890 | 0.4400 | 0.5786 |
 
-## Scorecard - честная CV (биннинг внутри фолдов)
-| Модель | ROC-AUC | PR-AUC | KS | Gini |
+## Scorecard - honest CV (binning inside folds)
+| Model | ROC-AUC | PR-AUC | KS | Gini |
 |---|---|---|---|---|
 | scorecard (CV mean) | 0.7640 | 0.2427 | 0.3978 | 0.5280 |
 
-## Методология
-- HPO (Optuna, TPE, seed) на стратифицированной подвыборке train; финальные модели - на полном train. CatBoost: `max_ctr_complexity=1` (без комбинаций категориальных).
+## Methodology
+- HPO (Optuna, TPE, seed) on a stratified subsample of train; final models - on the full train. CatBoost: `max_ctr_complexity=1` (no categorical combinations).
 
-## Консистентность фиче-базы
-- Вход одинаковый: **120 фич**.
-- **Scorecard**: WOE + отбор по IV≥0.02 → **76** фич (парсимоничен по дизайну).
-- **LightGBM**: категориальные как `category` dtype, пропуски нативно.
-- **CatBoost**: нативные категориальные (без one-hot) + пропуски нативно.
-- Расхождение: scorecard берёт подмножество (IV-отбор) и WOE; GBDT - все фичи и сырые пропуски. Сравнение корректно (один holdout, вход), интерпретация разная.
+## Feature-base consistency
+- Same input: **120 features**.
+- **Scorecard**: WOE + selection by IV>=0.02 -> **76** features (parsimonious by design).
+- **LightGBM**: categoricals as `category` dtype, missing values handled natively.
+- **CatBoost**: native categoricals (no one-hot) + missing values handled natively.
+- Difference: the scorecard takes a subset (IV selection) and WOE; GBDT - all features and raw missing values. The comparison is valid (single holdout, single input), the interpretation differs.

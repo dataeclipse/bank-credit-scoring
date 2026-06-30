@@ -57,12 +57,12 @@ def write_feature_schema(payload: dict[str, Any], path: Path) -> None:
 
 def write_data_dictionary(payload: dict[str, Any], path: Path) -> None:
     lines = [
-        "# Data dictionary - витрина фичей PD-скоринга",
+        "# Data dictionary - PD scoring feature mart",
         "",
         f"Schema version: **{payload['schema_version']}** · "
         f"features: **{payload['n_features']}** · hash: `{payload['features_hash']}`",
         "",
-        "| # | Фича | Тип | Источник | Описание |",
+        "| # | Feature | Type | Source | Description |",
         "|---|------|-----|----------|----------|",
     ]
     for i, feat in enumerate(payload["features"], start=1):

@@ -17,7 +17,7 @@ _EXT_SOURCE_RE = re.compile(r"^EXT_SOURCE_(\d)$")
 def _humanize(feature: str, description: str) -> str:
     match = _EXT_SOURCE_RE.match(feature)
     if match:
-        return f"внешний скоринговый балл (источник {match.group(1)})"
+        return f"external score (source {match.group(1)})"
     return description
 
 
@@ -71,7 +71,7 @@ def _make_code(
     feature_values: dict[str, Any] | None,
 ) -> ReasonCode:
     direction: Direction = "increases" if contribution > 0 else "decreases"
-    ru = "повышает риск" if contribution > 0 else "снижает риск"
+    effect = "increases risk" if contribution > 0 else "decreases risk"
     human = _humanize(feature, descriptions.get(feature, feature))
     value_str = ""
     if feature_values is not None:
@@ -82,7 +82,7 @@ def _make_code(
         feature=feature,
         contribution=float(contribution),
         direction=direction,
-        description=f"{human}{value_str} - {ru}",
+        description=f"{human}{value_str} - {effect}",
     )
 
 

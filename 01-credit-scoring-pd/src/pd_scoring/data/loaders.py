@@ -12,7 +12,7 @@ def load_table(raw_dir: Path, name: str, *, cache_dir: Path | None = None) -> pl
     if parquet_path.exists():
         return pl.read_parquet(parquet_path)
     if not csv_path.exists():
-        msg = f"Не найден {csv_path}. Сначала загрузи данные: pd-scoring-ingest --yes"
+        msg = f"{csv_path} not found. Download the data first: pd-scoring-ingest --yes"
         raise FileNotFoundError(msg)
     frame = pl.read_csv(csv_path, infer_schema_length=20000, null_values=["", "XNA"])
     cache.mkdir(parents=True, exist_ok=True)

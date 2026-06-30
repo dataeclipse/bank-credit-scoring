@@ -8,10 +8,10 @@ from pydantic import BaseModel, ConfigDict, Field
 class ApplicationIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    AMT_INCOME_TOTAL: float = Field(gt=0, description="совокупный доход")
-    AMT_CREDIT: float = Field(gt=0, description="сумма кредита по заявке")
-    DAYS_BIRTH: int = Field(lt=0, description="возраст в днях (<0)")
-    CODE_GENDER: Literal["M", "F", "XNA"] = Field(description="пол")
+    AMT_INCOME_TOTAL: float = Field(gt=0, description="total income")
+    AMT_CREDIT: float = Field(gt=0, description="credit amount of the application")
+    DAYS_BIRTH: int = Field(lt=0, description="age in days (<0)")
+    CODE_GENDER: Literal["M", "F", "XNA"] = Field(description="gender")
 
     AMT_ANNUITY: float | None = Field(default=None, gt=0)
     AMT_GOODS_PRICE: float | None = Field(default=None, gt=0)
@@ -43,8 +43,8 @@ class ReasonCodeOut(BaseModel):
 class ScoreOut(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
-    pd: float = Field(description="вероятность дефолта (0..1)")
-    score: int = Field(description="скоринговый балл")
+    pd: float = Field(description="probability of default (0..1)")
+    score: int = Field(description="credit score")
     segment: Literal["low", "medium", "high"]
     reason_codes: list[ReasonCodeOut]
     model_version: str

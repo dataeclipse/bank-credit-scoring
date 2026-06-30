@@ -28,18 +28,18 @@ from pd_scoring.seeds import set_seeds  # noqa: E402
 
 
 def _metric_pair_table(table: dict[str, dict[str, float]]) -> str:
-    head = "| Вариант | Brier ↓ | ECE ↓ |\n|---|---|---|"
+    head = "| Variant | Brier ↓ | ECE ↓ |\n|---|---|---|"
     rows = [f"| {name} | {m['brier']:.4f} | {m['ece']:.4f} |" for name, m in table.items()]
     return "\n".join([head, *rows])
 
 
 def _reliability_figure(cal: CalibrationResult, path: Path) -> None:
     plt.figure(figsize=(5, 5))
-    plt.plot([0, 1], [0, 1], "--", color="gray", label="идеальная")
+    plt.plot([0, 1], [0, 1], "--", color="gray", label="ideal")
     for name, (mean_pred, frac_pos) in cal.reliability.items():
         plt.plot(mean_pred, frac_pos, marker="o", label=name)
-    plt.xlabel("Средний прогноз PD")
-    plt.ylabel("Фактическая частота дефолта")
+    plt.xlabel("Mean predicted PD")
+    plt.ylabel("Observed default frequency")
     plt.title("Reliability curve (holdout)")
     plt.legend()
     plt.tight_layout()
@@ -56,7 +56,7 @@ def _shap_figures(
         [name for name, _ in reversed(top)], [val for _, val in reversed(top)], color="#4c78a8"
     )
     plt.xlabel("mean(|SHAP|)")
-    plt.title("Глобальная важность фич (топ-15)")
+    plt.title("Global feature importance (top-15)")
     plt.tight_layout()
     plt.savefig(img_dir / "shap_bar.png", dpi=110)
     plt.close()
@@ -88,22 +88,24 @@ def _write_calibration_md(docs: Path, cal: CalibrationResult) -> None:
     raw_ece = table["raw"]["ece"]
     if best_overall == "raw":
         verdict = [
-            f"Модель **уже хорошо откалибрована** (raw ECE {raw_ece:.4f} < 0.01): isotonic/Platt",
-            f"не снижают Brier/ECE. В прод - raw PD; калибратор `{cal.method}` сохранён как",
-            "страховка (например, на случай дрейфа - Фаза 4).",
+            f"The model is **already well calibrated** (raw ECE {raw_ece:.4f} < 0.01): "
+            "isotonic/Platt",
+            f"do not reduce Brier/ECE. In prod - raw PD; the `{cal.method}` calibrator is kept as",
+            "a safeguard (for example, in case of drift - Phase 4).",
         ]
     else:
         verdict = [
-            f"**Лучший метод: {best_overall}** - снижает Brier/ECE против raw. Калиброванный PD",
-            "ближе к фактической частоте дефолта (см. reliability curve).",
+            f"**Best method: {best_overall}** - reduces Brier/ECE versus raw. The calibrated PD",
+            "is closer to the observed default frequency (see reliability curve).",
         ]
     lines = [
-        "# Калибровка вероятностей (Фаза 3)",
+        "# Probability calibration (Phase 3)",
         "",
-        "Прод-модель LightGBM. Калибратор обучен на отдельном calib-наборе (из train), оценка - на",
-        "holdout. Утечки нет: holdout не виден ни модели, ни калибратору.",
+        "Prod model: LightGBM. The calibrator is trained on a separate calib set (from train), "
+        "evaluation is on",
+        "holdout. No leakage: the holdout is seen neither by the model nor the calibrator.",
         "",
-        "## Brier / ECE на holdout (до и после)",
+        "## Brier / ECE on holdout (before and after)",
         _metric_pair_table(table),
         "",
         *verdict,
@@ -119,19 +121,19 @@ def _write_explainability_md(
     examples: list[tuple[str, float, list[ReasonCode]]],
 ) -> None:
     lines = [
-        "# Объяснимость: SHAP reason codes (Фаза 3)",
+        "# Explainability: SHAP reason codes (Phase 3)",
         "",
-        "TreeExplainer по прод-LightGBM. Глобальная важность - mean(|SHAP|); reason codes -",
-        "топ-факторы «за/против» по заявке (знак SHAP = направление влияния на риск).",
+        "TreeExplainer on the prod LightGBM. Global importance - mean(|SHAP|); reason codes -",
+        'top "for/against" factors per application (SHAP sign = direction of the risk effect).',
         "",
-        "## Глобальная важность (топ-15)",
-        "| # | Фича | mean(\\|SHAP\\|) |",
+        "## Global importance (top-15)",
+        "| # | Feature | mean(\\|SHAP\\|) |",
         "|---|------|---------------|",
     ]
     for i, (name, value) in enumerate(importance[:15], start=1):
         lines.append(f"| {i} | `{name}` | {value:.4f} |")
     lines += ["", "![bar](img/shap_bar.png)", "", "![beeswarm](img/shap_beeswarm.png)", ""]
-    lines += ["## Примеры reason codes", ""]
+    lines += ["## Reason code examples", ""]
     for title, pd_value, codes in examples:
         lines += _codes_md(title, pd_value, codes)
     (docs / "explainability.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -139,17 +141,17 @@ def _write_explainability_md(
 
 def _write_fairness_md(docs: Path, threshold: float, report: dict[str, GroupFairness]) -> None:
     lines = [
-        "# Fairness (Фаза 3)",
+        "# Fairness (Phase 3)",
         "",
-        f"Решение: PD ≥ {threshold:.3f} → дефолт (отказ). Порог - KS-точка (Youden's J).",
-        "Благоприятный исход = одобрение (PD < порог). Метрики Fairlearn по прокси-группам.",
+        f"Decision: PD ≥ {threshold:.3f} → default (rejection). Threshold - KS point (Youden's J).",
+        "Favorable outcome = approval (PD < threshold). Fairlearn metrics over proxy groups.",
         "",
     ]
     for name, group in report.items():
         lines += [
-            f"## Группа: {name}",
+            f"## Group: {name}",
             "",
-            "| Подгруппа | selection_rate (отказ) | TPR | FPR | approval |",
+            "| Subgroup | selection_rate (rejection) | TPR | FPR | approval |",
             "|---|---|---|---|---|",
         ]
         approval = group.approval_rate
@@ -163,17 +165,17 @@ def _write_fairness_md(docs: Path, threshold: float, report: dict[str, GroupFair
             "",
             f"- Demographic parity diff: **{group.demographic_parity_diff:.3f}**",
             f"- Equalized odds diff: **{group.equalized_odds_diff:.3f}**",
-            f"- Disparate impact (4/5-правило, approval): **{group.disparate_impact:.3f}** "
-            "(порог 0.8: ниже - индикатор bias)",
+            f"- Disparate impact (4/5 rule, approval): **{group.disparate_impact:.3f}** "
+            "(threshold 0.8: below - bias indicator)",
             "",
         ]
     lines += [
-        "## Как с этим работают в банке",
-        "- **Диагностика, не приговор**: прокси-группы Home Credit анонимны; результат - индикатор",
-        "  риска bias.",
-        "- **Опции митигации** (здесь не применяем): reweighting/resampling по группам,",
-        "  ThresholdOptimizer (Fairlearn) для равных TPR/FPR, калибровка по группам.",
-        "- **Регуляторика**: фиксировать прокси, обоснованность фич, мониторинг паритета (Фаза 4).",
+        "## How this is handled in a bank",
+        "- **Diagnostic, not a verdict**: the Home Credit proxy groups are anonymous; the "
+        "result is a bias risk indicator.",
+        "- **Mitigation options** (not applied here): reweighting/resampling by group,",
+        "  ThresholdOptimizer (Fairlearn) for equal TPR/FPR, per-group calibration.",
+        "- **Regulatory**: fix proxies, feature justification, parity monitoring (Phase 4).",
     ]
     (docs / "fairness.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -187,12 +189,12 @@ def _reason_examples(
     lo = int(proba.argmin())
     return [
         (
-            "Высокий риск (кандидат на отказ)",
+            "High risk (rejection candidate)",
             float(proba[hi]),
             reason_codes(cal.model, frame.iloc[[hi]], descriptions, top_n=top_n),
         ),
         (
-            "Низкий риск (кандидат на одобрение)",
+            "Low risk (approval candidate)",
             float(proba[lo]),
             reason_codes(cal.model, frame.iloc[[lo]], descriptions, top_n=top_n),
         ),

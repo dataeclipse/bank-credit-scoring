@@ -55,12 +55,12 @@ def test_reason_codes_ext_source_humanized_with_value() -> None:
     codes = reason_codes_from_shap(
         ["EXT_SOURCE_3"],
         [0.8],
-        {"EXT_SOURCE_3": "внешний скоринговый балл 3"},
+        {"EXT_SOURCE_3": "external score 3"},
         top_n=1,
         feature_values={"EXT_SOURCE_3": 0.15},
     )
     code = codes[0]
-    assert "источник 3" in code.description
+    assert "source 3" in code.description
     assert "0.15" in code.description
     assert code.direction == "increases"
 
@@ -68,6 +68,6 @@ def test_reason_codes_ext_source_humanized_with_value() -> None:
 @pytest.mark.explain
 def test_reason_codes_real_model_has_direction() -> None:
     model, frame = _model_and_features()
-    codes = reason_codes(model, frame.iloc[[0]], {"strong": "сильный", "weak": "слабый"}, top_n=2)
+    codes = reason_codes(model, frame.iloc[[0]], {"strong": "strong", "weak": "weak"}, top_n=2)
     assert codes
     assert all(c.direction in ("increases", "decreases") for c in codes)

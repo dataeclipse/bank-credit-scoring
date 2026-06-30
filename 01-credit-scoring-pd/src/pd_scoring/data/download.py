@@ -78,10 +78,10 @@ def download_file(api: Any, name: str, raw_dir: Path, log: Any) -> bool:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Download Home Credit dataset via Kaggle API.")
     parser.add_argument(
-        "--yes", action="store_true", help="реально скачать (иначе только манифест)"
+        "--yes", action="store_true", help="actually download (otherwise manifest only)"
     )
     parser.add_argument(
-        "--raw-dir", default=None, help="куда класть CSV (по умолчанию <data_dir>/raw)"
+        "--raw-dir", default=None, help="where to put CSV files (default <data_dir>/raw)"
     )
     args = parser.parse_args(argv)
 
@@ -96,19 +96,19 @@ def main(argv: list[str] | None = None) -> int:
         log.error(
             "kaggle_auth_failed",
             error=str(exc),
-            hint="нужны KAGGLE_USERNAME/KAGGLE_KEY в .env и принятые правила соревнования",
+            hint="need KAGGLE_USERNAME/KAGGLE_KEY in .env and accepted competition rules",
         )
         return 1
 
     manifest = [(n, s) for n, s in list_manifest(api) if n in REQUIRED_FILES]
     total = sum(size for _, size in manifest)
-    print(f"\nHome Credit Default Risk - файлы к загрузке (в {raw_dir}):")
+    print(f"\nHome Credit Default Risk - files to download (into {raw_dir}):")
     for name, size in manifest:
         print(f"  {name:42s} {_human(size):>10s}")
-    print(f"  {'ИТОГО':42s} {_human(total):>10s}\n")
+    print(f"  {'TOTAL':42s} {_human(total):>10s}\n")
 
     if not args.yes:
-        print("Dry-run. Для реальной загрузки добавь --yes.")
+        print("Dry-run. Add --yes to download for real.")
         return 0
 
     downloaded = sum(download_file(api, name, raw_dir, log) for name in REQUIRED_FILES)

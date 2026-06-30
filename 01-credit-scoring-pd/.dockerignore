@@ -1,4 +1,4 @@
-# Контекст сборки - каталог проекта. Не тащим данные/артефакты/тесты в образ.
+# Build context is the project directory. Do not pull data/artifacts/tests into the image.
 .venv/
 data/
 mlruns/

@@ -31,8 +31,8 @@ def test_load_from_local_joblib(tmp_path: Path) -> None:
         json.dumps(
             {
                 "features": [
-                    {"name": "EXT_SOURCE_2", "dtype": "Float64", "description": "скор 2"},
-                    {"name": "AMT_CREDIT", "dtype": "Float64", "description": "кредит"},
+                    {"name": "EXT_SOURCE_2", "dtype": "Float64", "description": "score 2"},
+                    {"name": "AMT_CREDIT", "dtype": "Float64", "description": "credit"},
                 ]
             }
         ),

@@ -13,7 +13,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Export champion model from MLflow registry to joblib."
     )
-    parser.add_argument("--out", default="deploy/model", help="каталог для model.joblib")
+    parser.add_argument("--out", default="deploy/model", help="directory for model.joblib")
     args = parser.parse_args(argv)
 
     configure_logging()

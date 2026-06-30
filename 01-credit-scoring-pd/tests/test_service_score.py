@@ -31,7 +31,7 @@ class _StubService:
                     feature="EXT_SOURCE_2",
                     contribution=-0.1,
                     direction="decreases",
-                    description="внешний скоринговый балл (источник 2) = 0.5 - снижает риск",
+                    description="external score (source 2) = 0.5 - decreases risk",
                 )
             ],
             model_version="test",

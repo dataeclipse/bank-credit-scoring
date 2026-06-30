@@ -32,51 +32,51 @@ DAYS_EMPLOYED_ANOMALY = 365243
 
 
 _APP_RAW: tuple[tuple[str, str], ...] = (
-    ("NAME_CONTRACT_TYPE", "тип кредита (cash/revolving)"),
-    ("CODE_GENDER", "пол клиента"),
-    ("FLAG_OWN_CAR", "есть автомобиль"),
-    ("FLAG_OWN_REALTY", "есть недвижимость"),
-    ("CNT_CHILDREN", "число детей"),
-    ("AMT_INCOME_TOTAL", "совокупный доход"),
-    ("AMT_CREDIT", "сумма кредита по заявке"),
-    ("AMT_ANNUITY", "аннуитетный платёж"),
-    ("AMT_GOODS_PRICE", "стоимость товара под кредит"),
-    ("NAME_INCOME_TYPE", "тип источника дохода"),
-    ("NAME_EDUCATION_TYPE", "уровень образования"),
-    ("NAME_FAMILY_STATUS", "семейное положение"),
-    ("NAME_HOUSING_TYPE", "тип жилья"),
-    ("REGION_POPULATION_RELATIVE", "относительная населённость региона"),
-    ("DAYS_BIRTH", "возраст в днях (<0)"),
-    ("DAYS_EMPLOYED", "стаж в днях (<0; 365243 - аномалия, чистится)"),
-    ("DAYS_REGISTRATION", "давность смены регистрации (дни)"),
-    ("DAYS_ID_PUBLISH", "давность смены документа (дни)"),
-    ("OWN_CAR_AGE", "возраст автомобиля"),
-    ("FLAG_EMP_PHONE", "указан рабочий телефон"),
-    ("FLAG_WORK_PHONE", "указан рабочий мобильный"),
-    ("FLAG_PHONE", "указан домашний телефон"),
-    ("FLAG_EMAIL", "указан email"),
-    ("OCCUPATION_TYPE", "профессия"),
-    ("CNT_FAM_MEMBERS", "членов семьи"),
-    ("REGION_RATING_CLIENT", "рейтинг региона клиента"),
-    ("REGION_RATING_CLIENT_W_CITY", "рейтинг региона с учётом города"),
-    ("EXT_SOURCE_1", "внешний скоринговый балл 1"),
-    ("EXT_SOURCE_2", "внешний скоринговый балл 2"),
-    ("EXT_SOURCE_3", "внешний скоринговый балл 3"),
-    ("DAYS_LAST_PHONE_CHANGE", "давность смены телефона (дни)"),
-    ("AMT_REQ_CREDIT_BUREAU_QRT", "запросов в бюро за квартал"),
-    ("AMT_REQ_CREDIT_BUREAU_YEAR", "запросов в бюро за год"),
-    ("ORGANIZATION_TYPE", "тип организации-работодателя"),
+    ("NAME_CONTRACT_TYPE", "credit type (cash/revolving)"),
+    ("CODE_GENDER", "client gender"),
+    ("FLAG_OWN_CAR", "owns a car"),
+    ("FLAG_OWN_REALTY", "owns real estate"),
+    ("CNT_CHILDREN", "number of children"),
+    ("AMT_INCOME_TOTAL", "total income"),
+    ("AMT_CREDIT", "credit amount on the application"),
+    ("AMT_ANNUITY", "annuity payment"),
+    ("AMT_GOODS_PRICE", "price of the goods financed by the credit"),
+    ("NAME_INCOME_TYPE", "income source type"),
+    ("NAME_EDUCATION_TYPE", "education level"),
+    ("NAME_FAMILY_STATUS", "family status"),
+    ("NAME_HOUSING_TYPE", "housing type"),
+    ("REGION_POPULATION_RELATIVE", "relative population of the region"),
+    ("DAYS_BIRTH", "age in days (<0)"),
+    ("DAYS_EMPLOYED", "employment length in days (<0; 365243 - anomaly, cleaned)"),
+    ("DAYS_REGISTRATION", "time since registration change (days)"),
+    ("DAYS_ID_PUBLISH", "time since ID document change (days)"),
+    ("OWN_CAR_AGE", "car age"),
+    ("FLAG_EMP_PHONE", "work phone provided"),
+    ("FLAG_WORK_PHONE", "work mobile provided"),
+    ("FLAG_PHONE", "home phone provided"),
+    ("FLAG_EMAIL", "email provided"),
+    ("OCCUPATION_TYPE", "occupation"),
+    ("CNT_FAM_MEMBERS", "family members"),
+    ("REGION_RATING_CLIENT", "client region rating"),
+    ("REGION_RATING_CLIENT_W_CITY", "region rating including city"),
+    ("EXT_SOURCE_1", "external scoring score 1"),
+    ("EXT_SOURCE_2", "external scoring score 2"),
+    ("EXT_SOURCE_3", "external scoring score 3"),
+    ("DAYS_LAST_PHONE_CHANGE", "time since phone change (days)"),
+    ("AMT_REQ_CREDIT_BUREAU_QRT", "bureau inquiries in the last quarter"),
+    ("AMT_REQ_CREDIT_BUREAU_YEAR", "bureau inquiries in the last year"),
+    ("ORGANIZATION_TYPE", "employer organization type"),
 )
 
 
 _APP_ENGINEERED: tuple[tuple[str, str], ...] = (
-    ("DAYS_EMPLOYED_ANOM", "флаг аномалии стажа (DAYS_EMPLOYED==365243)"),
-    ("CREDIT_INCOME_RATIO", "сумма кредита / доход"),
-    ("ANNUITY_INCOME_RATIO", "аннуитет / доход"),
-    ("CREDIT_ANNUITY_RATIO", "сумма кредита / аннуитет (прокси срока)"),
-    ("GOODS_CREDIT_RATIO", "стоимость товара / сумма кредита"),
-    ("EMPLOYED_BIRTH_RATIO", "стаж / возраст"),
-    ("INCOME_PER_PERSON", "доход на члена семьи"),
+    ("DAYS_EMPLOYED_ANOM", "employment anomaly flag (DAYS_EMPLOYED==365243)"),
+    ("CREDIT_INCOME_RATIO", "credit amount / income"),
+    ("ANNUITY_INCOME_RATIO", "annuity / income"),
+    ("CREDIT_ANNUITY_RATIO", "credit amount / annuity (term proxy)"),
+    ("GOODS_CREDIT_RATIO", "goods price / credit amount"),
+    ("EMPLOYED_BIRTH_RATIO", "employment length / age"),
+    ("INCOME_PER_PERSON", "income per family member"),
 )
 
 _APP_KEEP = [name for name, _ in _APP_RAW]
@@ -156,15 +156,15 @@ def write_mart_to_postgres(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Build client-level feature mart.")
     parser.add_argument(
-        "--raw-dir", default=None, help="каталог с CSV (по умолчанию <data_dir>/raw)"
+        "--raw-dir", default=None, help="directory with CSV files (default <data_dir>/raw)"
     )
     parser.add_argument(
-        "--out-dir", default=None, help="куда писать mart (по умолчанию <data_dir>/processed)"
+        "--out-dir", default=None, help="where to write the mart (default <data_dir>/processed)"
     )
-    parser.add_argument("--docs-dir", default="docs", help="куда писать схему и словарь")
     parser.add_argument(
-        "--postgres", action="store_true", help="дополнительно записать витрину в PostgreSQL"
+        "--docs-dir", default="docs", help="where to write the schema and dictionary"
     )
+    parser.add_argument("--postgres", action="store_true", help="also write the mart to PostgreSQL")
     args = parser.parse_args(argv)
 
     configure_logging()

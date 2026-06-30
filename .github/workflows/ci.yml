@@ -6,7 +6,7 @@ on:
     branches: [main]
     tags: ["v*"]
 
-# Один проект моно-репо. Job гоняется в его подкаталоге.
+# Single project of the mono-repo. The job runs in its subdirectory.
 defaults:
   run:
     working-directory: 01-credit-scoring-pd
@@ -26,7 +26,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "01-credit-scoring-pd/uv.lock"
 
-      - name: Sync (core + dev + data, без тяжёлого ML-стека)
+      - name: Sync (core + dev + data, without the heavy ML stack)
         run: uv sync --frozen --extra data
 
       - name: Ruff lint
@@ -38,7 +38,7 @@ jobs:
       - name: Mypy (strict)
         run: uv run mypy src
 
-      - name: Pytest (data, без ml/explain)
+      - name: Pytest (data, without ml/explain)
         run: uv run pytest -m "not ml and not explain"
 
   tests-ml:
@@ -82,7 +82,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Smoke /healthz (без модели → degraded, но 200)
+      - name: Smoke /healthz (without model -> degraded, but 200)
         run: |
           docker run -d --name api -p 8000:8000 pd-scoring-api:ci
           for i in $(seq 1 30); do

@@ -1,5 +1,5 @@
-# Хуки качества для Проекта 1 (моно-репо: git-корень здесь, проект в подкаталоге).
-# Установка: pre-commit install. Обновить пины: pre-commit autoupdate.
+# Quality hooks for Project 1 (mono-repo: git root here, project in a subdirectory).
+# Install: pre-commit install. Update pins: pre-commit autoupdate.
 minimum_pre_commit_version: "3.5.0"
 
 repos:

@@ -1,26 +1,26 @@
-# Serving - PD scoring API (Фаза 4)
+# Serving - PD scoring API (Phase 4)
 
-FastAPI-сервис. Модель грузится из MLflow registry по алиасу `models:/pd-lightgbm@champion`
-на старте (lifespan). Запуск: `make run` (или `uv run uvicorn pd_scoring.service.app:app`).
+FastAPI service. The model is loaded from the MLflow registry by the alias `models:/pd-lightgbm@champion`
+at startup (lifespan). Run: `make run` (or `uv run uvicorn pd_scoring.service.app:app`).
 
-## Эндпоинты
-| Метод | Путь | Назначение |
+## Endpoints
+| Method | Path | Purpose |
 |---|---|---|
-| POST | `/score` | заявка → PD, балл, риск-сегмент, топ-3 reason codes |
-| GET | `/healthz` | готовность + версия загруженной модели |
-| GET | `/metrics` | метрики Prometheus (запросы, латентность, распределение PD) |
+| POST | `/score` | application → PD, score, risk segment, top-3 reason codes |
+| GET | `/healthz` | readiness + version of the loaded model |
+| GET | `/metrics` | Prometheus metrics (requests, latency, PD distribution) |
 
-## Контракт /score
-Вход - **поля заявки** (application-level). Валидация диапазонов (pydantic): `EXT_SOURCE_*∈[0,1]`,
-`AMT_*>0`, `DAYS_BIRTH<0`, `CODE_GENDER∈{M,F,XNA}`, неизвестные поля запрещены (`extra=forbid`).
-Обязательные: `AMT_INCOME_TOTAL`, `AMT_CREDIT`, `DAYS_BIRTH`, `CODE_GENDER`.
+## /score contract
+Input - **application fields** (application-level). Range validation (pydantic): `EXT_SOURCE_*∈[0,1]`,
+`AMT_*>0`, `DAYS_BIRTH<0`, `CODE_GENDER∈{M,F,XNA}`, unknown fields are not allowed (`extra=forbid`).
+Required: `AMT_INCOME_TOTAL`, `AMT_CREDIT`, `DAYS_BIRTH`, `CODE_GENDER`.
 
-> **Ограничение**: одна заявка не содержит агрегатов кредитной истории (bureau/previous/…).
-> Сервис строит полную строку из 120 фич модели: переданные поля + engineered ratios, остальное -
-> `null` (LightGBM обрабатывает нативно). Это «быстрый путь по данным заявки»; полный скоринг с
-> историей бюро - батч/фичестор (вне Фазы 4).
+> **Limitation**: a single application does not contain credit history aggregates (bureau/previous/…).
+> The service builds the full row of the model's 120 features: passed fields + engineered ratios, the rest -
+> `null` (LightGBM handles this natively). This is the "fast path over application data"; full scoring with
+> bureau history - batch/feature store (outside Phase 4).
 
-### Пример запроса
+### Example request
 ```bash
 curl -s -X POST http://localhost:8000/score -H 'Content-Type: application/json' -d '{
   "AMT_INCOME_TOTAL": 135000, "AMT_CREDIT": 600000, "AMT_ANNUITY": 27000,
@@ -29,58 +29,58 @@ curl -s -X POST http://localhost:8000/score -H 'Content-Type: application/json' 
 }'
 ```
 
-### Пример ответа A - высокий риск (низкие EXT_SOURCE)
+### Example response A - high risk (low EXT_SOURCE)
 ```json
 {
   "pd": 0.532, "score": 309, "segment": "high",
   "reason_codes": [
     {"feature": "EXT_SOURCE_3", "contribution": 0.958, "direction": "increases",
-     "description": "внешний скоринговый балл (источник 3) = 0.1 - повышает риск"},
+     "description": "external scoring score (source 3) = 0.1 - increases risk"},
     {"feature": "EXT_SOURCE_2", "contribution": 0.683, "direction": "increases",
-     "description": "внешний скоринговый балл (источник 2) = 0.12 - повышает риск"},
+     "description": "external scoring score (source 2) = 0.12 - increases risk"},
     {"feature": "EXT_SOURCE_1", "contribution": 0.599, "direction": "increases",
-     "description": "внешний скоринговый балл (источник 1) = 0.08 - повышает риск"},
+     "description": "external scoring score (source 1) = 0.08 - increases risk"},
     {"feature": "DAYS_BIRTH", "contribution": -0.179, "direction": "decreases",
-     "description": "возраст в днях (<0) = -8500 - снижает риск"},
+     "description": "age in days (<0) = -8500 - reduces risk"},
     {"feature": "NAME_CONTRACT_TYPE", "contribution": -0.113, "direction": "decreases",
-     "description": "тип кредита (cash/revolving) - снижает риск"},
+     "description": "credit type (cash/revolving) - reduces risk"},
     {"feature": "REGION_RATING_CLIENT_W_CITY", "contribution": -0.071, "direction": "decreases",
-     "description": "рейтинг региона с учётом города - снижает риск"}
+     "description": "region rating accounting for city - reduces risk"}
   ],
   "model_version": "3"
 }
 ```
 
-### Пример ответа B - низкий риск (высокие EXT_SOURCE)
+### Example response B - low risk (high EXT_SOURCE)
 ```json
 {
   "pd": 0.016, "score": 615, "segment": "low",
   "reason_codes": [
     {"feature": "DAYS_REGISTRATION", "contribution": 0.241, "direction": "increases",
-     "description": "давность смены регистрации (дни) - повышает риск"},
+     "description": "time since registration change (days) - increases risk"},
     {"feature": "CREDIT_ANNUITY_RATIO", "contribution": 0.137, "direction": "increases",
-     "description": "сумма кредита / аннуитет (прокси срока) = 20.5 - повышает риск"},
+     "description": "credit amount / annuity (term proxy) = 20.5 - increases risk"},
     {"feature": "EXT_SOURCE_2", "contribution": -0.497, "direction": "decreases",
-     "description": "внешний скоринговый балл (источник 2) = 0.72 - снижает риск"},
+     "description": "external scoring score (source 2) = 0.72 - reduces risk"},
     {"feature": "EXT_SOURCE_1", "contribution": -0.328, "direction": "decreases",
-     "description": "внешний скоринговый балл (источник 1) = 0.75 - снижает риск"},
+     "description": "external scoring score (source 1) = 0.75 - reduces risk"},
     {"feature": "EXT_SOURCE_3", "contribution": -0.241, "direction": "decreases",
-     "description": "внешний скоринговый балл (источник 3) = 0.68 - снижает риск"}
+     "description": "external scoring score (source 3) = 0.68 - reduces risk"}
   ],
   "model_version": "3"
 }
 ```
-Невалидный вход (например `DAYS_BIRTH > 0`, `EXT_SOURCE_2 > 1`, неизвестное поле) → **422**.
+Invalid input (for example `DAYS_BIRTH > 0`, `EXT_SOURCE_2 > 1`, an unknown field) → **422**.
 
-## Балл и риск-сегмент
-Балл - PDO/odds-шкала (config `score_base=600`, `score_pdo=50`, `score_base_odds=50`): выше балл = ниже риск.
-Сегмент по PD: `< 0.05` → **low**, `< 0.15` → **medium**, иначе **high** (пороги в config).
+## Score and risk segment
+The score is a PDO/odds scale (config `score_base=600`, `score_pdo=50`, `score_base_odds=50`): higher score = lower risk.
+Segment by PD: `< 0.05` → **low**, `< 0.15` → **medium**, otherwise **high** (thresholds in config).
 
 ## Reason codes
-LightGBM native TreeSHAP (`pred_contrib`). Возвращаем **сбалансированно**: топ-3 фактора «за» риск
-(`direction: increases`) + топ-3 «против» (`decreases`) - видно обе стороны решения. Поле `direction`
-машинно-читаемое; описание - человекочитаемое (для `EXT_SOURCE_N` цифра = номер источника, плюс
-значение фичи). Источник имён - `feature_schema.json`.
+LightGBM native TreeSHAP (`pred_contrib`). Returned **in a balanced way**: top-3 factors "for" risk
+(`direction: increases`) + top-3 "against" (`decreases`) - both sides of the decision are visible. The `direction` field
+is machine-readable; the description is human-readable (for `EXT_SOURCE_N` the digit = source number, plus
+the feature value). Source of names - `feature_schema.json`.
 
-## Латентность
-См. [load_test.md](load_test.md): одиночный запрос p50 ≈ 83 мс, p95 ≈ 86 мс.
+## Latency
+See [load_test.md](load_test.md): single request p50 ≈ 83 ms, p95 ≈ 86 ms.

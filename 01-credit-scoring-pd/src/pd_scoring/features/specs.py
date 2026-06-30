@@ -13,11 +13,11 @@ STAT_EXPR: dict[str, Callable[[str], pl.Expr]] = {
     "std": lambda c: pl.col(c).std(),
 }
 STAT_RU: dict[str, str] = {
-    "mean": "среднее",
-    "sum": "сумма",
-    "max": "максимум",
-    "min": "минимум",
-    "std": "ст.откл.",
+    "mean": "mean",
+    "sum": "sum",
+    "max": "max",
+    "min": "min",
+    "std": "std",
 }
 
 
@@ -50,25 +50,23 @@ BUREAU_SPEC = TableSpec(
     source="bureau.csv",
     key="SK_ID_CURR",
     numeric=(
-        NumAgg(
-            "DAYS_CREDIT", ("mean", "min", "max"), "давность кредитов в бюро (дни, <0 - прошлое)"
-        ),
-        NumAgg("CREDIT_DAY_OVERDUE", ("mean", "max"), "дней просрочки на отчётную дату"),
-        NumAgg("AMT_CREDIT_SUM", ("sum", "mean", "max"), "сумма кредита по записи бюро"),
-        NumAgg("AMT_CREDIT_SUM_DEBT", ("sum", "mean"), "текущий долг по кредиту бюро"),
-        NumAgg("AMT_CREDIT_SUM_OVERDUE", ("sum",), "просроченная сумма"),
-        NumAgg("AMT_CREDIT_MAX_OVERDUE", ("mean", "max"), "макс. историческая просрочка"),
-        NumAgg("CNT_CREDIT_PROLONG", ("sum",), "число пролонгаций кредита"),
-        NumAgg("DAYS_CREDIT_UPDATE", ("mean",), "давность обновления записи бюро"),
-        NumAgg("BB_MONTHS_COUNT", ("mean", "sum"), "число месяцев истории в bureau_balance"),
-        NumAgg("BB_DPD_COUNT", ("sum", "mean"), "число месяцев с просрочкой (статусы 1-5)"),
+        NumAgg("DAYS_CREDIT", ("mean", "min", "max"), "age of bureau credits (days, <0 - past)"),
+        NumAgg("CREDIT_DAY_OVERDUE", ("mean", "max"), "days past due as of the reporting date"),
+        NumAgg("AMT_CREDIT_SUM", ("sum", "mean", "max"), "credit amount per bureau record"),
+        NumAgg("AMT_CREDIT_SUM_DEBT", ("sum", "mean"), "current debt on the bureau credit"),
+        NumAgg("AMT_CREDIT_SUM_OVERDUE", ("sum",), "overdue amount"),
+        NumAgg("AMT_CREDIT_MAX_OVERDUE", ("mean", "max"), "max historical overdue"),
+        NumAgg("CNT_CREDIT_PROLONG", ("sum",), "number of credit prolongations"),
+        NumAgg("DAYS_CREDIT_UPDATE", ("mean",), "age of the bureau record update"),
+        NumAgg("BB_MONTHS_COUNT", ("mean", "sum"), "number of months of history in bureau_balance"),
+        NumAgg("BB_DPD_COUNT", ("sum", "mean"), "number of months with overdue (statuses 1-5)"),
     ),
     flags=(
         FlagCount(
-            "BUREAU_ACTIVE_COUNT", "CREDIT_ACTIVE", "Active", "число активных кредитов в бюро"
+            "BUREAU_ACTIVE_COUNT", "CREDIT_ACTIVE", "Active", "number of active bureau credits"
         ),
         FlagCount(
-            "BUREAU_CLOSED_COUNT", "CREDIT_ACTIVE", "Closed", "число закрытых кредитов в бюро"
+            "BUREAU_CLOSED_COUNT", "CREDIT_ACTIVE", "Closed", "number of closed bureau credits"
         ),
     ),
 )
@@ -78,19 +76,29 @@ PREVIOUS_SPEC = TableSpec(
     source="previous_application.csv",
     key="SK_ID_CURR",
     numeric=(
-        NumAgg("AMT_APPLICATION", ("mean", "sum", "max"), "запрошенная сумма по прошлой заявке"),
-        NumAgg("AMT_CREDIT", ("mean", "sum", "max"), "одобренная сумма по прошлой заявке"),
-        NumAgg("AMT_DOWN_PAYMENT", ("mean",), "первоначальный взнос"),
-        NumAgg("DAYS_DECISION", ("mean", "min", "max"), "давность решения по прошлой заявке"),
-        NumAgg("CNT_PAYMENT", ("mean", "sum"), "срок кредита в платежах"),
-        NumAgg("APP_CREDIT_RATIO", ("mean", "max"), "запрошено/одобрено (derived)"),
+        NumAgg(
+            "AMT_APPLICATION", ("mean", "sum", "max"), "requested amount on the prior application"
+        ),
+        NumAgg("AMT_CREDIT", ("mean", "sum", "max"), "approved amount on the prior application"),
+        NumAgg("AMT_DOWN_PAYMENT", ("mean",), "down payment"),
+        NumAgg(
+            "DAYS_DECISION", ("mean", "min", "max"), "age of the decision on the prior application"
+        ),
+        NumAgg("CNT_PAYMENT", ("mean", "sum"), "credit term in payments"),
+        NumAgg("APP_CREDIT_RATIO", ("mean", "max"), "requested/approved (derived)"),
     ),
     flags=(
         FlagCount(
-            "PREV_APPROVED_COUNT", "NAME_CONTRACT_STATUS", "Approved", "число одобренных заявок"
+            "PREV_APPROVED_COUNT",
+            "NAME_CONTRACT_STATUS",
+            "Approved",
+            "number of approved applications",
         ),
         FlagCount(
-            "PREV_REFUSED_COUNT", "NAME_CONTRACT_STATUS", "Refused", "число отклонённых заявок"
+            "PREV_REFUSED_COUNT",
+            "NAME_CONTRACT_STATUS",
+            "Refused",
+            "number of refused applications",
         ),
     ),
 )
@@ -100,12 +108,12 @@ INSTALLMENTS_SPEC = TableSpec(
     source="installments_payments.csv",
     key="SK_ID_CURR",
     numeric=(
-        NumAgg("PAYMENT_DIFF", ("mean", "sum", "max"), "недоплата = план − факт (derived)"),
-        NumAgg("PAYMENT_RATIO", ("mean", "min"), "факт/план платежа (derived)"),
-        NumAgg("DPD", ("mean", "max", "sum"), "дней просрочки платежа (derived)"),
-        NumAgg("DBD", ("mean",), "дней до срока платежа (derived)"),
-        NumAgg("AMT_PAYMENT", ("sum", "mean"), "фактический платёж"),
-        NumAgg("AMT_INSTALMENT", ("sum", "mean"), "плановый платёж"),
+        NumAgg("PAYMENT_DIFF", ("mean", "sum", "max"), "underpayment = planned - actual (derived)"),
+        NumAgg("PAYMENT_RATIO", ("mean", "min"), "actual/planned payment (derived)"),
+        NumAgg("DPD", ("mean", "max", "sum"), "days past due on the payment (derived)"),
+        NumAgg("DBD", ("mean",), "days before the payment due date (derived)"),
+        NumAgg("AMT_PAYMENT", ("sum", "mean"), "actual payment"),
+        NumAgg("AMT_INSTALMENT", ("sum", "mean"), "planned payment"),
     ),
 )
 
@@ -114,10 +122,10 @@ POS_SPEC = TableSpec(
     source="POS_CASH_balance.csv",
     key="SK_ID_CURR",
     numeric=(
-        NumAgg("MONTHS_BALANCE", ("mean", "min"), "глубина истории POS (мес., <0 - прошлое)"),
-        NumAgg("SK_DPD", ("mean", "max"), "дней просрочки POS"),
-        NumAgg("SK_DPD_DEF", ("mean", "max"), "дней просрочки POS (с учётом толеранса)"),
-        NumAgg("CNT_INSTALMENT_FUTURE", ("mean", "min"), "оставшиеся платежи POS"),
+        NumAgg("MONTHS_BALANCE", ("mean", "min"), "POS history depth (months, <0 - past)"),
+        NumAgg("SK_DPD", ("mean", "max"), "POS days past due"),
+        NumAgg("SK_DPD_DEF", ("mean", "max"), "POS days past due (with tolerance)"),
+        NumAgg("CNT_INSTALMENT_FUTURE", ("mean", "min"), "remaining POS payments"),
     ),
 )
 
@@ -126,13 +134,13 @@ CREDIT_CARD_SPEC = TableSpec(
     source="credit_card_balance.csv",
     key="SK_ID_CURR",
     numeric=(
-        NumAgg("AMT_BALANCE", ("mean", "max"), "баланс по карте"),
-        NumAgg("AMT_CREDIT_LIMIT_ACTUAL", ("mean", "max"), "кредитный лимит карты"),
-        NumAgg("UTILIZATION", ("mean", "max"), "утилизация = баланс/лимит (derived)"),
-        NumAgg("AMT_DRAWINGS_CURRENT", ("sum", "mean"), "снятия по карте"),
-        NumAgg("AMT_PAYMENT_CURRENT", ("sum", "mean"), "платежи по карте"),
-        NumAgg("SK_DPD", ("mean", "max"), "дней просрочки по карте"),
-        NumAgg("SK_DPD_DEF", ("mean", "max"), "дней просрочки по карте (толеранс)"),
-        NumAgg("CNT_DRAWINGS_CURRENT", ("sum", "mean"), "число снятий по карте"),
+        NumAgg("AMT_BALANCE", ("mean", "max"), "card balance"),
+        NumAgg("AMT_CREDIT_LIMIT_ACTUAL", ("mean", "max"), "card credit limit"),
+        NumAgg("UTILIZATION", ("mean", "max"), "utilization = balance/limit (derived)"),
+        NumAgg("AMT_DRAWINGS_CURRENT", ("sum", "mean"), "card drawings"),
+        NumAgg("AMT_PAYMENT_CURRENT", ("sum", "mean"), "card payments"),
+        NumAgg("SK_DPD", ("mean", "max"), "card days past due"),
+        NumAgg("SK_DPD_DEF", ("mean", "max"), "card days past due (tolerance)"),
+        NumAgg("CNT_DRAWINGS_CURRENT", ("sum", "mean"), "number of card drawings"),
     ),
 )
