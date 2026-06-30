@@ -28,6 +28,10 @@ mlartifacts/
 mlflow.db
 *.db
 artifacts/
+
+# --- Запечённая модель для Docker (создаётся pd-scoring-export-model) ---
+**/deploy/*
+!**/deploy/.gitkeep
 *.parquet
 *.pkl
 *.joblib

@@ -1,9 +1,14 @@
-"""Загрузка ScoringService из MLflow registry. Тяжёлые импорты — ленивые (вызывается на старте)."""
+"""Загрузка ScoringService. Тяжёлые импорты — ленивые (вызывается на старте сервиса).
+
+Две ветки: локальный joblib (контейнер, lean serve-стек, без mlflow) ИЛИ MLflow registry по
+алиасу (dev). Управляется ``PD_MODEL_URI``.
+"""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from pd_scoring.config import Settings
 from pd_scoring.service.scoring_service import ScoringService
@@ -16,10 +21,13 @@ def _schema(path: Path) -> tuple[dict[str, str], list[str]]:
     return descriptions, categorical
 
 
-def load_scoring_service(
-    settings: Settings, *, schema_path: Path = Path("docs/feature_schema.json")
-) -> ScoringService:
-    """Загрузить прод-LightGBM по алиасу из registry + опц. калибратор + SHAP-explainer."""
+def _load_model(settings: Settings) -> tuple[Any, str]:
+    """Локальный joblib (PD_MODEL_URI) или MLflow registry по алиасу."""
+    if settings.model_uri:
+        import joblib
+
+        return joblib.load(settings.model_uri), settings.model_version_label
+
     import mlflow
     from mlflow import MlflowClient
 
@@ -31,6 +39,14 @@ def load_scoring_service(
         .get_model_version_by_alias(settings.model_name, settings.model_alias)
         .version
     )
+    return model, str(version)
+
+
+def load_scoring_service(
+    settings: Settings, *, schema_path: Path = Path("docs/feature_schema.json")
+) -> ScoringService:
+    """Загрузить прод-LightGBM (+ опц. калибратор) и метаданные фич → ScoringService."""
+    model, version = _load_model(settings)
 
     calibrator = None
     if settings.use_calibrator:
@@ -48,5 +64,5 @@ def load_scoring_service(
         categorical=categorical,
         descriptions=descriptions,
         settings=settings,
-        model_version=str(version),
+        model_version=version,
     )

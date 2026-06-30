@@ -1,0 +1,22 @@
+# Контекст сборки — каталог проекта. Не тащим данные/артефакты/тесты в образ.
+.venv/
+data/
+mlruns/
+mlartifacts/
+artifacts/
+*.db
+*.log
+tests/
+notebooks/
+loadtest/
+docs/img/
+sql/
+infra/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+**/__pycache__/
+*.pyc
+.env
+.git/

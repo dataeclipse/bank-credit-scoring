@@ -31,7 +31,9 @@ class Settings(BaseSettings):
     mlflow_tracking_uri: str | None = None
     mlflow_experiment: str = "pd-scoring-phase2"
 
-    # Прод-модель в MLflow registry (грузим по алиасу, не по пути).
+    # Прод-модель: model_uri (локальный joblib — контейнер) ИЛИ MLflow registry по алиасу (dev).
+    model_uri: str | None = None
+    model_version_label: str = "baked"
     model_name: str = "pd-lightgbm"
     model_alias: str = "champion"
     use_calibrator: bool = False

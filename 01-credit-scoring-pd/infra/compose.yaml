@@ -1,5 +1,7 @@
-# Локальный контур сервиса. Запуск: docker compose -f infra/compose.yaml up --build
-# (из каталога 01-credit-scoring-pd).
+# Контур сервиса PD-скоринга. Запуск из каталога проекта (01-credit-scoring-pd):
+#   docker compose -f infra/compose.yaml up --build
+# Перед этим: обучить модель (Фаза 2) и запечь её → pd-scoring-export-model (deploy/model/).
+# mlflow UI (опц., для просмотра экспериментов): docker compose -f infra/compose.yaml --profile tools up
 name: pd-scoring
 
 services:
@@ -7,21 +9,33 @@ services:
     build:
       context: ..
       dockerfile: infra/docker/Dockerfile
+    image: pd-scoring-api:latest
     ports:
       - "8000:8000"
     environment:
       PD_ENV: docker
-      PD_LOG_LEVEL: INFO
-      PD_DATABASE_URL: postgresql+psycopg://scoring:scoring@db:5432/scoring
+      PD_LOG_LEVEL: ${PD_LOG_LEVEL:-INFO}
+      PD_DATABASE_URL: postgresql+psycopg://scoring:${POSTGRES_PASSWORD:-scoring}@db:5432/scoring
+      PD_MODEL_URI: /app/deploy/model/model.joblib
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/healthz').status==200 else 1)
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 25s
 
   db:
     image: postgres:17
     environment:
       POSTGRES_USER: scoring
-      POSTGRES_PASSWORD: scoring
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-scoring}
       POSTGRES_DB: scoring
     ports:
       - "5432:5432"
@@ -33,7 +47,23 @@ services:
       timeout: 5s
       retries: 5
 
-  # TODO(Phase 5): mlflow (tracking/registry) + evidently (drift dashboard).
+  # MLflow UI (опционально, профиль tools) — просмотр экспериментов/registry. API от него не зависит
+  # (модель запечена в образ). Артефакты могут не резолвиться (абсолютные пути), метаданные — ок.
+  mlflow:
+    profiles: ["tools"]
+    image: python:3.12-slim
+    command:
+      - sh
+      - -c
+      - >
+        pip install --no-cache-dir 'mlflow>=2.18' &&
+        mlflow server --backend-store-uri sqlite:////mlflow/mlflow.db
+        --artifacts-destination /mlflow/mlruns --host 0.0.0.0 --port 5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../mlflow.db:/mlflow/mlflow.db
+      - ../mlruns:/mlflow/mlruns
 
 volumes:
   pgdata:

@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches: [main]
+    tags: ["v*"]
 
 # Один проект моно-репо. Job гоняется в его подкаталоге.
 defaults:
@@ -54,8 +55,39 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "01-credit-scoring-pd/uv.lock"
 
-      - name: Sync (ML + explain: shap/fairlearn)
+      - name: "Sync (ML + explain: shap/fairlearn)"
         run: uv sync --frozen --extra explain
 
       - name: Pytest (ml + explain)
         run: uv run pytest -m "ml or explain"
+
+  docker:
+    name: docker build + smoke
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (lean serve stack)
+        uses: docker/build-push-action@v6
+        with:
+          context: 01-credit-scoring-pd
+          file: 01-credit-scoring-pd/infra/docker/Dockerfile
+          tags: pd-scoring-api:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke /healthz (без модели → degraded, но 200)
+        run: |
+          docker run -d --name api -p 8000:8000 pd-scoring-api:ci
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/healthz || true)
+            if [ "$code" = "200" ]; then echo "healthz=200 OK"; docker rm -f api; exit 0; fi
+            sleep 2
+          done
+          echo "healthz did not return 200"; docker logs api; exit 1

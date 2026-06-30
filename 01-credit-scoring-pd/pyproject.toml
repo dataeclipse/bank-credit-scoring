@@ -1,6 +1,6 @@
 [project]
 name = "pd-scoring"
-version = "0.1.0"
+version = "1.0.0"
 description = "Кредитный скоринг (PD) как production-сервис: WOE-scorecard + GBDT, калибровка, SHAP, fairness, мониторинг дрейфа."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -59,6 +59,14 @@ explain = [
 ]
 # Нагрузочный тест /score (Фаза 4). Ставится отдельно: uv sync --extra loadtest.
 loadtest = ["locust>=2.0"]
+# Минимальный runtime serving (Фаза 5, Docker): без mlflow/shap/numba/catboost — модель грузится
+# локально через joblib. uv sync --extra serve.
+serve = [
+    "numpy>=2.4,<2.5",
+    "pandas>=2.2",
+    "scikit-learn>=1.8.0",
+    "lightgbm>=4.6.0",
+]
 
 [project.scripts]
 pd-scoring-serve = "pd_scoring.service.cli:serve"
@@ -67,6 +75,7 @@ pd-scoring-build-mart = "pd_scoring.features.build_mart:main"
 pd-scoring-train = "pd_scoring.models.train:main"
 pd-scoring-evaluate = "pd_scoring.models.evaluate:main"
 pd-scoring-drift = "pd_scoring.monitoring.drift:main"
+pd-scoring-export-model = "pd_scoring.service.export_model:main"
 
 # PEP 735 dev-группа. `uv sync` ставит её по умолчанию.
 [dependency-groups]
