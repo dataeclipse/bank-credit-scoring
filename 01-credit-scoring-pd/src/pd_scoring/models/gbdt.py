@@ -75,6 +75,7 @@ def train_catboost(data: ModelingData, params: dict[str, Any], *, seed: int) -> 
         random_seed=seed,
         eval_metric="AUC",
         cat_features=data.categorical_features,
+        max_ctr_complexity=1,  # без дорогих комбинаций категориальных — кратно быстрее
         verbose=0,
         allow_writing_files=False,
     )

@@ -73,6 +73,10 @@ def _write_comparison(
         "## Scorecard — честная CV (биннинг внутри фолдов)",
         _metrics_table({"scorecard (CV mean)": sc.cv_metrics}),
         "",
+        "## Методология",
+        "- HPO (Optuna, TPE, seed) на стратифицированной подвыборке train; финальные модели — "
+        "на полном train. CatBoost: `max_ctr_complexity=1` (без комбинаций категориальных).",
+        "",
         "## Консистентность фиче-базы",
         f"- Вход одинаковый: **{n_features} фич**.",
         f"- **Scorecard**: WOE + отбор по IV≥0.02 → **{len(sc.selected_features)}** фич "
@@ -198,6 +202,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Train scorecard + GBDT, compare, log to MLflow.")
     parser.add_argument("--trials", type=int, default=30, help="Optuna trials на модель")
     parser.add_argument("--no-tune", action="store_true", help="без Optuna (дефолтные параметры)")
+    parser.add_argument("--tune-sample", type=int, default=40000, help="размер подвыборки для HPO")
     parser.add_argument(
         "--sample", type=int, default=None, help="subsample train для smoke-проверки"
     )
@@ -227,6 +232,12 @@ def main(argv: list[str] | None = None) -> int:
 
     results: dict[str, dict[str, float]] = {}
 
+    # Гиперпараметры подбираем на стратифицированном подвыборке (быстро), финал — на полном train.
+    tune_data = data
+    if not args.no_tune and len(data.y_train) > args.tune_sample:
+        tune_data = _subsample(data, args.tune_sample, seed)
+        log.info("tuning_subsample", rows=len(tune_data.y_train))
+
     sc = _run_scorecard(data, seed, docs_dir, models_dir)
     results["scorecard"] = sc.holdout_metrics
     log.info(
@@ -234,7 +245,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     lgbm_params = (
-        DEFAULT_LGBM if args.no_tune else tune_lightgbm(data, seed=seed, n_trials=args.trials)
+        DEFAULT_LGBM if args.no_tune else tune_lightgbm(tune_data, seed=seed, n_trials=args.trials)
     )
     lgbm = train_lightgbm(data, lgbm_params, seed=seed)
     _run_gbdt("lightgbm", "lightgbm", lgbm, lgbm_params)
@@ -244,7 +255,9 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     cat_params = (
-        DEFAULT_CATBOOST if args.no_tune else tune_catboost(data, seed=seed, n_trials=args.trials)
+        DEFAULT_CATBOOST
+        if args.no_tune
+        else tune_catboost(tune_data, seed=seed, n_trials=args.trials)
     )
     catboost = train_catboost(data, cat_params, seed=seed)
     _run_gbdt("catboost", "catboost", catboost, cat_params)

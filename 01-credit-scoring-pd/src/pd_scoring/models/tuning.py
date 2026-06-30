@@ -21,7 +21,7 @@ from pd_scoring.models.metrics import roc_auc
 
 DEFAULT_TRIALS = 30
 TUNING_FOLDS = 3  # для HPO достаточно 3 фолдов; финальная оценка — на holdout
-TUNING_ITERS = 1500
+TUNING_ITERS = 600  # cap деревьев для HPO; финальные модели учатся до 3000 с early stopping
 
 
 def _cv(seed: int) -> Any:
@@ -58,6 +58,7 @@ def _mean_cv_auc_catboost(
             random_seed=seed,
             eval_metric="AUC",
             cat_features=categorical,
+            max_ctr_complexity=1,  # без комбинаций категориальных — кратно быстрее
             verbose=0,
             allow_writing_files=False,
         )
@@ -81,7 +82,7 @@ def tune_lightgbm(
     def objective(trial: Any) -> float:
         params = {
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.2, log=True),
-            "num_leaves": trial.suggest_int("num_leaves", 16, 255),
+            "num_leaves": trial.suggest_int("num_leaves", 16, 96),
             "min_child_samples": trial.suggest_int("min_child_samples", 20, 200),
             "subsample": trial.suggest_float("subsample", 0.6, 1.0),
             "subsample_freq": 1,
@@ -105,7 +106,7 @@ def tune_catboost(
     def objective(trial: Any) -> float:
         params = {
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.2, log=True),
-            "depth": trial.suggest_int("depth", 4, 8),
+            "depth": trial.suggest_int("depth", 4, 6),
             "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 1.0, 20.0, log=True),
             "random_strength": trial.suggest_float("random_strength", 1e-3, 10.0, log=True),
         }
