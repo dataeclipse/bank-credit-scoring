@@ -25,8 +25,8 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "01-credit-scoring-pd/uv.lock"
 
-      - name: Sync (core + dev, без тяжёлого ML-стека)
-        run: uv sync --frozen
+      - name: Sync (core + dev + data, без тяжёлого ML-стека)
+        run: uv sync --frozen --extra data
 
       - name: Ruff lint
         run: uv run ruff check .

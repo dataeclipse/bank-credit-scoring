@@ -17,8 +17,10 @@ kaggle.json
 .kaggle/
 
 # --- Data (датасеты не коммитим; держим только README) ---
+# Только датасеты в <project>/data/ — НЕ Python-пакет src/.../data/ (его возвращаем ниже).
 **/data/*
 !**/data/README.md
+!**/src/**/*.py
 
 # --- ML artifacts / tracking ---
 mlruns/

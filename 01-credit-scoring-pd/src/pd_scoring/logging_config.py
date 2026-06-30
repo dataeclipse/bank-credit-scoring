@@ -10,6 +10,11 @@ import structlog
 
 def configure_logging(level: str = "INFO") -> None:
     """Настроить structlog и stdlib logging на JSON-вывод в stdout."""
+    # На Windows консоль по умолчанию cp1252 — принудительно UTF-8, чтобы не падать на кириллице.
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8")
     log_level: int = getattr(logging, level.upper(), logging.INFO)
     logging.basicConfig(format="%(message)s", stream=sys.stdout, level=log_level)
     structlog.configure(
