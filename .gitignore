@@ -17,7 +17,7 @@ kaggle.json
 .kaggle/
 
 # --- Data (датасеты не коммитим; держим только README) ---
-# Только датасеты в <project>/data/ — НЕ Python-пакет src/.../data/ (его возвращаем ниже).
+# Только датасеты в <project>/data/ - НЕ Python-пакет src/.../data/ (его возвращаем ниже).
 **/data/*
 !**/data/README.md
 !**/src/**/*.py
@@ -68,3 +68,6 @@ project3_genai_rukz_1.txt
 Thumbs.db
 .idea/
 .vscode/
+
+# Claude Code memory file - local only
+**/CLAUDE.md

@@ -102,7 +102,7 @@ def main(argv: list[str] | None = None) -> int:
 
     manifest = [(n, s) for n, s in list_manifest(api) if n in REQUIRED_FILES]
     total = sum(size for _, size in manifest)
-    print(f"\nHome Credit Default Risk — файлы к загрузке (в {raw_dir}):")
+    print(f"\nHome Credit Default Risk - файлы к загрузке (в {raw_dir}):")
     for name, size in manifest:
         print(f"  {name:42s} {_human(size):>10s}")
     print(f"  {'ИТОГО':42s} {_human(total):>10s}\n")

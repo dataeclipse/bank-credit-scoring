@@ -82,7 +82,7 @@ def _make_code(
         feature=feature,
         contribution=float(contribution),
         direction=direction,
-        description=f"{human}{value_str} — {ru}",
+        description=f"{human}{value_str} - {ru}",
     )
 
 

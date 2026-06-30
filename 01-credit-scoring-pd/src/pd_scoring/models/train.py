@@ -64,11 +64,11 @@ def _write_comparison(
         "## Метрики на holdout",
         _metrics_table(results),
         "",
-        "## Scorecard — честная CV (биннинг внутри фолдов)",
+        "## Scorecard - честная CV (биннинг внутри фолдов)",
         _metrics_table({"scorecard (CV mean)": sc.cv_metrics}),
         "",
         "## Методология",
-        "- HPO (Optuna, TPE, seed) на стратифицированной подвыборке train; финальные модели — "
+        "- HPO (Optuna, TPE, seed) на стратифицированной подвыборке train; финальные модели - "
         "на полном train. CatBoost: `max_ctr_complexity=1` (без комбинаций категориальных).",
         "",
         "## Консистентность фиче-базы",
@@ -77,7 +77,7 @@ def _write_comparison(
         "(парсимоничен по дизайну).",
         "- **LightGBM**: категориальные как `category` dtype, пропуски нативно.",
         "- **CatBoost**: нативные категориальные (без one-hot) + пропуски нативно.",
-        "- Расхождение: scorecard берёт подмножество (IV-отбор) и WOE; GBDT — все фичи и "
+        "- Расхождение: scorecard берёт подмножество (IV-отбор) и WOE; GBDT - все фичи и "
         "сырые пропуски. Сравнение корректно (один holdout, вход), интерпретация разная.",
     ]
     (docs_dir / "model_comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -92,13 +92,13 @@ def _write_selection(
     gap = best["gini"] - scorecard["gini"]
     if best_name != "scorecard" and gap > 0.03:
         verdict = (
-            f"**В прод: {best_name}** (Gini {best['gini']:.3f}, KS {best['ks']:.3f}) — выше "
-            f"scorecard (Gini {scorecard['gini']:.3f}) на Δ Gini {gap:.3f}. Scorecard — "
+            f"**В прод: {best_name}** (Gini {best['gini']:.3f}, KS {best['ks']:.3f}) - выше "
+            f"scorecard (Gini {scorecard['gini']:.3f}) на Δ Gini {gap:.3f}. Scorecard - "
             "интерпретируемый challenger и регуляторная объяснимость (баллы/reason codes)."
         )
     else:
         verdict = (
-            f"**В прод: scorecard** — отставание от лучшего GBDT по Gini невелико ({gap:.3f}), а "
+            f"**В прод: scorecard** - отставание от лучшего GBDT по Gini невелико ({gap:.3f}), а "
             "интерпретируемость и регуляторная защищаемость перевешивают."
         )
     lines = [
@@ -112,13 +112,13 @@ def _write_selection(
         "",
         "## Trade-off «качество ↔ интерпретируемость»",
         "- **GBDT (LightGBM/CatBoost)**: выше Gini/KS, ловят нелинейности и взаимодействия; "
-        "нативно работают с пропусками и cat. Минус — чёрный ящик (SHAP в Фазе 3).",
+        "нативно работают с пропусками и cat. Минус - чёрный ящик (SHAP в Фазе 3).",
         "- **Scorecard (WOE + логистика)**: прозрачные баллы, монотонные бины, IV-отбор; легко "
-        "валидируется и объясняется регулятору. Минус — обычно ниже по качеству.",
+        "валидируется и объясняется регулятору. Минус - обычно ниже по качеству.",
         f"- Финальный scorecard использует {len(sc.selected_features)} фич против полной базы "
         "у GBDT.",
         "",
-        "_Калибровка вероятностей, SHAP reason codes и fairness — Фаза 3._",
+        "_Калибровка вероятностей, SHAP reason codes и fairness - Фаза 3._",
     ]
     (docs_dir / "model_selection.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -126,9 +126,9 @@ def _write_selection(
 def _write_scorecard_docs(docs_dir: Path, sc: ScorecardResult) -> None:
     selected_iv = sc.iv_table[sc.iv_table["selected"]]
     lines = [
-        "# Scorecard — фичи, IV и баллы (Фаза 2)",
+        "# Scorecard - фичи, IV и баллы (Фаза 2)",
         "",
-        f"Отобрано **{len(sc.selected_features)}** фич по IV≥0.02. Полная таблица баллов — "
+        f"Отобрано **{len(sc.selected_features)}** фич по IV≥0.02. Полная таблица баллов - "
         "`scorecard_points.csv`.",
         "",
         "## Отобранные фичи по IV",

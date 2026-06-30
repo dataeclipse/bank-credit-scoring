@@ -76,7 +76,7 @@ def _codes_md(title: str, pd_value: float, codes: list[ReasonCode]) -> list[str]
     for code in codes:
         sign = "+" if code.contribution > 0 else "−"
         lines.append(
-            f"- `{code.feature}` — {code.description} (SHAP {sign}{abs(code.contribution):.3f})"
+            f"- `{code.feature}` - {code.description} (SHAP {sign}{abs(code.contribution):.3f})"
         )
     lines.append("")
     return lines
@@ -89,18 +89,18 @@ def _write_calibration_md(docs: Path, cal: CalibrationResult) -> None:
     if best_overall == "raw":
         verdict = [
             f"Модель **уже хорошо откалибрована** (raw ECE {raw_ece:.4f} < 0.01): isotonic/Platt",
-            f"не снижают Brier/ECE. В прод — raw PD; калибратор `{cal.method}` сохранён как",
-            "страховка (например, на случай дрейфа — Фаза 4).",
+            f"не снижают Brier/ECE. В прод - raw PD; калибратор `{cal.method}` сохранён как",
+            "страховка (например, на случай дрейфа - Фаза 4).",
         ]
     else:
         verdict = [
-            f"**Лучший метод: {best_overall}** — снижает Brier/ECE против raw. Калиброванный PD",
+            f"**Лучший метод: {best_overall}** - снижает Brier/ECE против raw. Калиброванный PD",
             "ближе к фактической частоте дефолта (см. reliability curve).",
         ]
     lines = [
         "# Калибровка вероятностей (Фаза 3)",
         "",
-        "Прод-модель LightGBM. Калибратор обучен на отдельном calib-наборе (из train), оценка — на",
+        "Прод-модель LightGBM. Калибратор обучен на отдельном calib-наборе (из train), оценка - на",
         "holdout. Утечки нет: holdout не виден ни модели, ни калибратору.",
         "",
         "## Brier / ECE на holdout (до и после)",
@@ -121,7 +121,7 @@ def _write_explainability_md(
     lines = [
         "# Объяснимость: SHAP reason codes (Фаза 3)",
         "",
-        "TreeExplainer по прод-LightGBM. Глобальная важность — mean(|SHAP|); reason codes —",
+        "TreeExplainer по прод-LightGBM. Глобальная важность - mean(|SHAP|); reason codes -",
         "топ-факторы «за/против» по заявке (знак SHAP = направление влияния на риск).",
         "",
         "## Глобальная важность (топ-15)",
@@ -141,7 +141,7 @@ def _write_fairness_md(docs: Path, threshold: float, report: dict[str, GroupFair
     lines = [
         "# Fairness (Фаза 3)",
         "",
-        f"Решение: PD ≥ {threshold:.3f} → дефолт (отказ). Порог — KS-точка (Youden's J).",
+        f"Решение: PD ≥ {threshold:.3f} → дефолт (отказ). Порог - KS-точка (Youden's J).",
         "Благоприятный исход = одобрение (PD < порог). Метрики Fairlearn по прокси-группам.",
         "",
     ]
@@ -164,12 +164,12 @@ def _write_fairness_md(docs: Path, threshold: float, report: dict[str, GroupFair
             f"- Demographic parity diff: **{group.demographic_parity_diff:.3f}**",
             f"- Equalized odds diff: **{group.equalized_odds_diff:.3f}**",
             f"- Disparate impact (4/5-правило, approval): **{group.disparate_impact:.3f}** "
-            "(порог 0.8: ниже — индикатор bias)",
+            "(порог 0.8: ниже - индикатор bias)",
             "",
         ]
     lines += [
         "## Как с этим работают в банке",
-        "- **Диагностика, не приговор**: прокси-группы Home Credit анонимны; результат — индикатор",
+        "- **Диагностика, не приговор**: прокси-группы Home Credit анонимны; результат - индикатор",
         "  риска bias.",
         "- **Опции митигации** (здесь не применяем): reweighting/resampling по группам,",
         "  ThresholdOptimizer (Fairlearn) для равных TPR/FPR, калибровка по группам.",

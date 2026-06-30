@@ -97,7 +97,7 @@
       "name": "DAYS_EMPLOYED",
       "dtype": "Int64",
       "source": "application.csv",
-      "description": "стаж в днях (<0; 365243 — аномалия, чистится)"
+      "description": "стаж в днях (<0; 365243 - аномалия, чистится)"
     },
     {
       "name": "DAYS_REGISTRATION",
@@ -259,19 +259,19 @@
       "name": "BUREAU_DAYS_CREDIT_MEAN",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "среднее DAYS_CREDIT: давность кредитов в бюро (дни, <0 — прошлое)"
+      "description": "среднее DAYS_CREDIT: давность кредитов в бюро (дни, <0 - прошлое)"
     },
     {
       "name": "BUREAU_DAYS_CREDIT_MIN",
       "dtype": "Int64",
       "source": "bureau.csv",
-      "description": "минимум DAYS_CREDIT: давность кредитов в бюро (дни, <0 — прошлое)"
+      "description": "минимум DAYS_CREDIT: давность кредитов в бюро (дни, <0 - прошлое)"
     },
     {
       "name": "BUREAU_DAYS_CREDIT_MAX",
       "dtype": "Int64",
       "source": "bureau.csv",
-      "description": "максимум DAYS_CREDIT: давность кредитов в бюро (дни, <0 — прошлое)"
+      "description": "максимум DAYS_CREDIT: давность кредитов в бюро (дни, <0 - прошлое)"
     },
     {
       "name": "BUREAU_CREDIT_DAY_OVERDUE_MEAN",
@@ -361,13 +361,13 @@
       "name": "BUREAU_BB_DPD_COUNT_SUM",
       "dtype": "Int64",
       "source": "bureau.csv",
-      "description": "сумма BB_DPD_COUNT: число месяцев с просрочкой (статусы 1–5)"
+      "description": "сумма BB_DPD_COUNT: число месяцев с просрочкой (статусы 1-5)"
     },
     {
       "name": "BUREAU_BB_DPD_COUNT_MEAN",
       "dtype": "Float64",
       "source": "bureau.csv",
-      "description": "среднее BB_DPD_COUNT: число месяцев с просрочкой (статусы 1–5)"
+      "description": "среднее BB_DPD_COUNT: число месяцев с просрочкой (статусы 1-5)"
     },
     {
       "name": "BUREAU_ACTIVE_COUNT",
@@ -577,13 +577,13 @@
       "name": "POS_MONTHS_BALANCE_MEAN",
       "dtype": "Float64",
       "source": "POS_CASH_balance.csv",
-      "description": "среднее MONTHS_BALANCE: глубина истории POS (мес., <0 — прошлое)"
+      "description": "среднее MONTHS_BALANCE: глубина истории POS (мес., <0 - прошлое)"
     },
     {
       "name": "POS_MONTHS_BALANCE_MIN",
       "dtype": "Int64",
       "source": "POS_CASH_balance.csv",
-      "description": "минимум MONTHS_BALANCE: глубина истории POS (мес., <0 — прошлое)"
+      "description": "минимум MONTHS_BALANCE: глубина истории POS (мес., <0 - прошлое)"
     },
     {
       "name": "POS_SK_DPD_MEAN",

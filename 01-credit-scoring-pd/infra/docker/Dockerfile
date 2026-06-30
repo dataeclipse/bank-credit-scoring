@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Multi-stage, non-root, lean serve-стек (без mlflow/shap/numba/catboost).
-# Контекст сборки — каталог проекта (01-credit-scoring-pd). Модель запекается в deploy/ (joblib).
+# Контекст сборки - каталог проекта (01-credit-scoring-pd). Модель запекается в deploy/ (joblib).
 
 # ---------- builder ----------
 FROM python:3.12-slim AS builder

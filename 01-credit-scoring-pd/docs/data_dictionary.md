@@ -1,4 +1,4 @@
-# Data dictionary — витрина фичей PD-скоринга
+# Data dictionary - витрина фичей PD-скоринга
 
 Schema version: **1** · features: **120** · hash: `ac4281b5adbc`
 
@@ -19,7 +19,7 @@ Schema version: **1** · features: **120** · hash: `ac4281b5adbc`
 | 13 | `NAME_HOUSING_TYPE` | String | application.csv | тип жилья |
 | 14 | `REGION_POPULATION_RELATIVE` | Float64 | application.csv | относительная населённость региона |
 | 15 | `DAYS_BIRTH` | Int64 | application.csv | возраст в днях (<0) |
-| 16 | `DAYS_EMPLOYED` | Int64 | application.csv | стаж в днях (<0; 365243 — аномалия, чистится) |
+| 16 | `DAYS_EMPLOYED` | Int64 | application.csv | стаж в днях (<0; 365243 - аномалия, чистится) |
 | 17 | `DAYS_REGISTRATION` | Float64 | application.csv | давность смены регистрации (дни) |
 | 18 | `DAYS_ID_PUBLISH` | Int64 | application.csv | давность смены документа (дни) |
 | 19 | `OWN_CAR_AGE` | Float64 | application.csv | возраст автомобиля |
@@ -46,9 +46,9 @@ Schema version: **1** · features: **120** · hash: `ac4281b5adbc`
 | 40 | `EMPLOYED_BIRTH_RATIO` | Float64 | application.csv | стаж / возраст |
 | 41 | `INCOME_PER_PERSON` | Float64 | application.csv | доход на члена семьи |
 | 42 | `BUREAU_COUNT` | UInt32 | bureau.csv | число записей (BUREAU) на клиента |
-| 43 | `BUREAU_DAYS_CREDIT_MEAN` | Float64 | bureau.csv | среднее DAYS_CREDIT: давность кредитов в бюро (дни, <0 — прошлое) |
-| 44 | `BUREAU_DAYS_CREDIT_MIN` | Int64 | bureau.csv | минимум DAYS_CREDIT: давность кредитов в бюро (дни, <0 — прошлое) |
-| 45 | `BUREAU_DAYS_CREDIT_MAX` | Int64 | bureau.csv | максимум DAYS_CREDIT: давность кредитов в бюро (дни, <0 — прошлое) |
+| 43 | `BUREAU_DAYS_CREDIT_MEAN` | Float64 | bureau.csv | среднее DAYS_CREDIT: давность кредитов в бюро (дни, <0 - прошлое) |
+| 44 | `BUREAU_DAYS_CREDIT_MIN` | Int64 | bureau.csv | минимум DAYS_CREDIT: давность кредитов в бюро (дни, <0 - прошлое) |
+| 45 | `BUREAU_DAYS_CREDIT_MAX` | Int64 | bureau.csv | максимум DAYS_CREDIT: давность кредитов в бюро (дни, <0 - прошлое) |
 | 46 | `BUREAU_CREDIT_DAY_OVERDUE_MEAN` | Float64 | bureau.csv | среднее CREDIT_DAY_OVERDUE: дней просрочки на отчётную дату |
 | 47 | `BUREAU_CREDIT_DAY_OVERDUE_MAX` | Int64 | bureau.csv | максимум CREDIT_DAY_OVERDUE: дней просрочки на отчётную дату |
 | 48 | `BUREAU_AMT_CREDIT_SUM_SUM` | Float64 | bureau.csv | сумма AMT_CREDIT_SUM: сумма кредита по записи бюро |
@@ -63,8 +63,8 @@ Schema version: **1** · features: **120** · hash: `ac4281b5adbc`
 | 57 | `BUREAU_DAYS_CREDIT_UPDATE_MEAN` | Float64 | bureau.csv | среднее DAYS_CREDIT_UPDATE: давность обновления записи бюро |
 | 58 | `BUREAU_BB_MONTHS_COUNT_MEAN` | Float64 | bureau.csv | среднее BB_MONTHS_COUNT: число месяцев истории в bureau_balance |
 | 59 | `BUREAU_BB_MONTHS_COUNT_SUM` | UInt32 | bureau.csv | сумма BB_MONTHS_COUNT: число месяцев истории в bureau_balance |
-| 60 | `BUREAU_BB_DPD_COUNT_SUM` | Int64 | bureau.csv | сумма BB_DPD_COUNT: число месяцев с просрочкой (статусы 1–5) |
-| 61 | `BUREAU_BB_DPD_COUNT_MEAN` | Float64 | bureau.csv | среднее BB_DPD_COUNT: число месяцев с просрочкой (статусы 1–5) |
+| 60 | `BUREAU_BB_DPD_COUNT_SUM` | Int64 | bureau.csv | сумма BB_DPD_COUNT: число месяцев с просрочкой (статусы 1-5) |
+| 61 | `BUREAU_BB_DPD_COUNT_MEAN` | Float64 | bureau.csv | среднее BB_DPD_COUNT: число месяцев с просрочкой (статусы 1-5) |
 | 62 | `BUREAU_ACTIVE_COUNT` | Int64 | bureau.csv | число активных кредитов в бюро |
 | 63 | `BUREAU_CLOSED_COUNT` | Int64 | bureau.csv | число закрытых кредитов в бюро |
 | 64 | `PREV_COUNT` | UInt32 | previous_application.csv | число записей (PREV) на клиента |
@@ -99,8 +99,8 @@ Schema version: **1** · features: **120** · hash: `ac4281b5adbc`
 | 93 | `INST_AMT_INSTALMENT_SUM` | Float64 | installments_payments.csv | сумма AMT_INSTALMENT: плановый платёж |
 | 94 | `INST_AMT_INSTALMENT_MEAN` | Float64 | installments_payments.csv | среднее AMT_INSTALMENT: плановый платёж |
 | 95 | `POS_COUNT` | UInt32 | POS_CASH_balance.csv | число записей (POS) на клиента |
-| 96 | `POS_MONTHS_BALANCE_MEAN` | Float64 | POS_CASH_balance.csv | среднее MONTHS_BALANCE: глубина истории POS (мес., <0 — прошлое) |
-| 97 | `POS_MONTHS_BALANCE_MIN` | Int64 | POS_CASH_balance.csv | минимум MONTHS_BALANCE: глубина истории POS (мес., <0 — прошлое) |
+| 96 | `POS_MONTHS_BALANCE_MEAN` | Float64 | POS_CASH_balance.csv | среднее MONTHS_BALANCE: глубина истории POS (мес., <0 - прошлое) |
+| 97 | `POS_MONTHS_BALANCE_MIN` | Int64 | POS_CASH_balance.csv | минимум MONTHS_BALANCE: глубина истории POS (мес., <0 - прошлое) |
 | 98 | `POS_SK_DPD_MEAN` | Float64 | POS_CASH_balance.csv | среднее SK_DPD: дней просрочки POS |
 | 99 | `POS_SK_DPD_MAX` | Int64 | POS_CASH_balance.csv | максимум SK_DPD: дней просрочки POS |
 | 100 | `POS_SK_DPD_DEF_MEAN` | Float64 | POS_CASH_balance.csv | среднее SK_DPD_DEF: дней просрочки POS (с учётом толеранса) |

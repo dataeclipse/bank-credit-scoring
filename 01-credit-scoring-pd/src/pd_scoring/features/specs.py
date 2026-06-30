@@ -51,7 +51,7 @@ BUREAU_SPEC = TableSpec(
     key="SK_ID_CURR",
     numeric=(
         NumAgg(
-            "DAYS_CREDIT", ("mean", "min", "max"), "давность кредитов в бюро (дни, <0 — прошлое)"
+            "DAYS_CREDIT", ("mean", "min", "max"), "давность кредитов в бюро (дни, <0 - прошлое)"
         ),
         NumAgg("CREDIT_DAY_OVERDUE", ("mean", "max"), "дней просрочки на отчётную дату"),
         NumAgg("AMT_CREDIT_SUM", ("sum", "mean", "max"), "сумма кредита по записи бюро"),
@@ -61,7 +61,7 @@ BUREAU_SPEC = TableSpec(
         NumAgg("CNT_CREDIT_PROLONG", ("sum",), "число пролонгаций кредита"),
         NumAgg("DAYS_CREDIT_UPDATE", ("mean",), "давность обновления записи бюро"),
         NumAgg("BB_MONTHS_COUNT", ("mean", "sum"), "число месяцев истории в bureau_balance"),
-        NumAgg("BB_DPD_COUNT", ("sum", "mean"), "число месяцев с просрочкой (статусы 1–5)"),
+        NumAgg("BB_DPD_COUNT", ("sum", "mean"), "число месяцев с просрочкой (статусы 1-5)"),
     ),
     flags=(
         FlagCount(
@@ -114,7 +114,7 @@ POS_SPEC = TableSpec(
     source="POS_CASH_balance.csv",
     key="SK_ID_CURR",
     numeric=(
-        NumAgg("MONTHS_BALANCE", ("mean", "min"), "глубина истории POS (мес., <0 — прошлое)"),
+        NumAgg("MONTHS_BALANCE", ("mean", "min"), "глубина истории POS (мес., <0 - прошлое)"),
         NumAgg("SK_DPD", ("mean", "max"), "дней просрочки POS"),
         NumAgg("SK_DPD_DEF", ("mean", "max"), "дней просрочки POS (с учётом толеранса)"),
         NumAgg("CNT_INSTALMENT_FUTURE", ("mean", "min"), "оставшиеся платежи POS"),

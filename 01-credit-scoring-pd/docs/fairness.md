@@ -1,6 +1,6 @@
 # Fairness (Фаза 3)
 
-Решение: PD ≥ 0.106 → дефолт (отказ). Порог — KS-точка (Youden's J).
+Решение: PD ≥ 0.106 → дефолт (отказ). Порог - KS-точка (Youden's J).
 Благоприятный исход = одобрение (PD < порог). Метрики Fairlearn по прокси-группам.
 
 ## Группа: CODE_GENDER
@@ -12,7 +12,7 @@
 
 - Demographic parity diff: **0.139**
 - Equalized odds diff: **0.126**
-- Disparate impact (4/5-правило, approval): **0.816** (порог 0.8: ниже — индикатор bias)
+- Disparate impact (4/5-правило, approval): **0.816** (порог 0.8: ниже - индикатор bias)
 
 ## Группа: AGE_BAND
 
@@ -26,10 +26,10 @@
 
 - Demographic parity diff: **0.319**
 - Equalized odds diff: **0.371**
-- Disparate impact (4/5-правило, approval): **0.627** (порог 0.8: ниже — индикатор bias)
+- Disparate impact (4/5-правило, approval): **0.627** (порог 0.8: ниже - индикатор bias)
 
 ## Как с этим работают в банке
-- **Диагностика, не приговор**: прокси-группы Home Credit анонимны; результат — индикатор
+- **Диагностика, не приговор**: прокси-группы Home Credit анонимны; результат - индикатор
   риска bias.
 - **Опции митигации** (здесь не применяем): reweighting/resampling по группам,
   ThresholdOptimizer (Fairlearn) для равных TPR/FPR, калибровка по группам.

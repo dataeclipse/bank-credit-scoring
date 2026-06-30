@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "dataeclipse" }]
 
-# Лёгкое ядро — нужно скелету сервиса и конфигу. Ставится `uv sync`.
+# Лёгкое ядро - нужно скелету сервиса и конфигу. Ставится `uv sync`.
 dependencies = [
     "pydantic>=2.11",
     "pydantic-settings>=2.6",
@@ -20,11 +20,11 @@ dependencies = [
 ]
 
 # Зависимости разделены на extra (floor-пины на 30.06.2026, новейшие совместимые версии):
-#   data — лёгкий слой данных/EDA (Фаза 1): polars/sklearn/pyarrow/kaggle. CI ставит его.
-#   ml   — тяжёлые модели/трекинг (Фаза 2+); включает data.
+#   data - лёгкий слой данных/EDA (Фаза 1): polars/sklearn/pyarrow/kaggle. CI ставит его.
+#   ml   - тяжёлые модели/трекинг (Фаза 2+); включает data.
 [project.optional-dependencies]
 data = [
-    # <2.5: numba (через shap, extra explain) пока не поддерживает numpy 2.5 — иначе тянется
+    # <2.5: numba (через shap, extra explain) пока не поддерживает numpy 2.5 - иначе тянется
     # древний numba 0.53/llvmlite 0.36, не билдящийся на py3.12. 2.4.x устраивает всех.
     "numpy>=2.4,<2.5",
     "pandas>=2.2",
@@ -50,7 +50,7 @@ ml = [
     "optuna>=4.0",
 ]
 # Объяснимость / справедливость / дрейф (Фаза 3+). Отдельный extra: shap тянет numba/llvmlite,
-# которые пока конфликтуют с numpy 2.x — разрешим в Фазе 3 (cap numpy либо обновлённый numba).
+# которые пока конфликтуют с numpy 2.x - разрешим в Фазе 3 (cap numpy либо обновлённый numba).
 explain = [
     "pd-scoring[ml]",
     "shap>=0.46",
@@ -59,7 +59,7 @@ explain = [
 ]
 # Нагрузочный тест /score (Фаза 4). Ставится отдельно: uv sync --extra loadtest.
 loadtest = ["locust>=2.0"]
-# Минимальный runtime serving (Фаза 5, Docker): без mlflow/shap/numba/catboost — модель грузится
+# Минимальный runtime serving (Фаза 5, Docker): без mlflow/shap/numba/catboost - модель грузится
 # локально через joblib. uv sync --extra serve.
 serve = [
     "numpy>=2.4,<2.5",
@@ -104,7 +104,7 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
-# FastAPI Depends/Query/... в дефолтах аргументов — это паттерн фреймворка, не баг (B008).
+# FastAPI Depends/Query/... в дефолтах аргументов - это паттерн фреймворка, не баг (B008).
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path", "fastapi.Body"]
 
@@ -117,7 +117,7 @@ strict = true
 mypy_path = "src"
 files = ["src"]
 
-# Библиотеки без type stubs — не ломаем strict-проверку их импортами.
+# Библиотеки без type stubs - не ломаем strict-проверку их импортами.
 [[tool.mypy.overrides]]
 module = [
     "sklearn.*",
@@ -139,13 +139,13 @@ module = [
 ]
 ignore_missing_imports = true
 
-# pandas/joblib без py.typed-стабов — глушим import-untyped (strict без pandas-stubs шумит).
+# pandas/joblib без py.typed-стабов - глушим import-untyped (strict без pandas-stubs шумит).
 [[tool.mypy.overrides]]
 module = ["pandas", "pandas.*", "joblib", "joblib.*"]
 ignore_missing_imports = true
 
 # tracking.py подклассит mlflow.pyfunc.PythonModel (= Any при ignore_missing_imports). Какой код
-# type:ignore нужен — зависит от наличия mlflow (CI data-env vs explain-env) → не флагаем unused.
+# type:ignore нужен - зависит от наличия mlflow (CI data-env vs explain-env) → не флагаем unused.
 [[tool.mypy.overrides]]
 module = "pd_scoring.models.tracking"
 warn_unused_ignores = false
