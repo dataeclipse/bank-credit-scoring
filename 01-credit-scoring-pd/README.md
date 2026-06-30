@@ -77,7 +77,15 @@ make eda              # выполнить notebooks/01_eda.ipynb → docs/eda.m
 Подробно: [docs/model_comparison.md](docs/model_comparison.md), [docs/model_selection.md](docs/model_selection.md),
 [docs/scorecard.md](docs/scorecard.md). Scorecard CV (биннинг внутри фолдов): Gini 0.528 — без оптимизма.
 
-**Фаза 3+** `TODO`: калибровка + reliability curve, SHAP reason codes, fairness, дашборд дрейфа.
+**Фаза 3 — калибровка · объяснимость · fairness** (прод-LightGBM, holdout):
+- **Калибровка**: LightGBM уже хорошо откалиброван — Brier 0.066, **ECE 0.0028** (<0.01); isotonic/Platt
+  не улучшают → raw PD в прод. [docs/calibration.md](docs/calibration.md).
+- **SHAP**: TreeExplainer, топ-фичи EXT_SOURCE_2/3/1; человекочитаемые **reason codes** «за/против» по заявке.
+  [docs/explainability.md](docs/explainability.md).
+- **Fairness** (Fairlearn): пол DI 0.82 (ок), возраст DI 0.63 (<0.8 — молодые в зоне риска отказа).
+  [docs/fairness.md](docs/fairness.md).
+
+**Фаза 4+** `TODO`: сервис `/score`, мониторинг дрейфа (PSI/CSI), дашборд.
 
 ## Model card
 См. [docs/model_card.md](docs/model_card.md) — назначение, данные, метрики, калибровка,
@@ -89,7 +97,7 @@ make eda              # выполнить notebooks/01_eda.ipynb → docs/eda.m
 | 0 ✅ | Скелет: структура, uv/pyproject, ruff/mypy/pytest/pre-commit, CI, `/healthz` |
 | 1 ✅ | Данные и витрина фичей (Home Credit, агрегации без утечек, EDA, split+seed) |
 | 2 ✅ | Две модели: WOE-scorecard + GBDT, метрики, MLflow, выбор в прод (LightGBM, Gini 0.579) |
-| 3 | Калибровка + SHAP reason codes + fairness (Fairlearn) |
+| 3 ✅ | Калибровка (ECE 0.003) + SHAP reason codes + fairness (Fairlearn) |
 | 4 | Сервис `/score` + Evidently PSI/CSI дрейф + нагрузочный тест |
 | 5 | Прод: Docker/compose, CI/CD, полная model card, демо |
 
