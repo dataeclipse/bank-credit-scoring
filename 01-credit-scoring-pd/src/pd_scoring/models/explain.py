@@ -8,7 +8,6 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-import shap
 
 from pd_scoring.scoring import Direction, ReasonCode
 
@@ -50,6 +49,8 @@ def _extract(values: Any) -> Any:
 
 
 def shap_values(model: Any, features: pd.DataFrame) -> Any:
+    import shap
+
     return _extract(shap.TreeExplainer(model).shap_values(features))
 
 

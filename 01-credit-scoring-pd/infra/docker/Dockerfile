@@ -25,6 +25,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # ---------- runtime ----------
 FROM python:3.12-slim AS runtime
 
+# LightGBM линкуется с OpenMP-рантаймом (libgomp), которого нет в python:3.12-slim.
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN useradd --create-home --uid 1000 appuser
 
 WORKDIR /app
