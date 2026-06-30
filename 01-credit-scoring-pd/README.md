@@ -39,18 +39,34 @@ flowchart TD
 ## How to run
 Требуется [uv](https://docs.astral.sh/uv/). Из каталога `01-credit-scoring-pd/`:
 ```bash
-make install          # uv sync (core + dev); или: uv sync
+make install          # uv sync --extra data (core + dev + слой данных)
 make lint             # ruff;        или: uv run ruff check . && uv run ruff format --check .
 make type             # mypy strict; или: uv run mypy src
 make test             # pytest;      или: uv run pytest
 make run              # сервис на :8000; затем curl http://localhost:8000/healthz
 ```
-Нет `make` (Windows)? Запускай команды из правой колонки напрямую через `uv run`.
-Тяжёлый ML-стек (Фаза 1+): `make install-ml` (`uv sync --extra ml`).
+Данные и витрина фичей (Фаза 1; нужны Kaggle-креды в `.env` + принятые правила соревнования):
+```bash
+make ingest           # манифест данных (dry-run, показывает размеры)
+make download         # скачать Home Credit (~2.5 GB, Kaggle API; data/ в .gitignore)
+make features         # собрать client-level витрину → data/processed/mart.parquet + схема
+make eda              # выполнить notebooks/01_eda.ipynb → docs/eda.md
+```
+Нет `make` (Windows)? Запускай команды напрямую через `uv run`.
+Тяжёлый ML-стек (Фаза 2+): `make install-ml` (`uv sync --extra ml`).
 
 ## Results
-`TODO` (Фаза 2+): таблица банковских метрик (Gini/KS/ROC-AUC/PR-AUC) для scorecard vs GBDT,
-reliability curve, пример reason codes, дашборд дрейфа.
+**Фаза 1 — витрина фичей** (Home Credit, воспроизводимо из `make download && make features`):
+- Витрина: **356 255** заявок × **120 фич** (curated application + engineered ratios + client-level
+  агрегаты bureau/previous/installments/POS/credit_card). Словарь: [docs/data_dictionary.md](docs/data_dictionary.md),
+  схема: [docs/feature_schema.json](docs/feature_schema.json).
+- Баланс классов: **8.07%** дефолтов (24 825 / 307 511) — сильный дисбаланс (~1:11).
+- Сильнейшие предикторы: **EXT_SOURCE_3/2/1** (corr с TARGET −0.18 / −0.16 / −0.16),
+  утилизация кредитки и просрочки бюро. Аномалия `DAYS_EMPLOYED==365243` (18%) вынесена во флаг.
+- Полный разбор: [docs/eda.md](docs/eda.md) + [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb).
+
+**Фаза 2+** `TODO`: банковские метрики (Gini/KS/ROC-AUC/PR-AUC) scorecard vs GBDT, reliability
+curve, reason codes, дашборд дрейфа.
 
 ## Model card
 См. [docs/model_card.md](docs/model_card.md) — назначение, данные, метрики, калибровка,
@@ -60,7 +76,7 @@ reliability curve, пример reason codes, дашборд дрейфа.
 | Фаза | Содержание |
 |---|---|
 | 0 ✅ | Скелет: структура, uv/pyproject, ruff/mypy/pytest/pre-commit, CI, `/healthz` |
-| 1 | Данные и витрина фичей (Home Credit, агрегации без утечек, EDA, split+seed) |
+| 1 ✅ | Данные и витрина фичей (Home Credit, агрегации без утечек, EDA, split+seed) |
 | 2 | Две модели: WOE-scorecard + GBDT, метрики, MLflow, выбор в прод |
 | 3 | Калибровка + SHAP reason codes + fairness (Fairlearn) |
 | 4 | Сервис `/score` + Evidently PSI/CSI дрейф + нагрузочный тест |

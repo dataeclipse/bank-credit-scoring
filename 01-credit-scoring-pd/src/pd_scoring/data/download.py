@@ -90,8 +90,12 @@ def download_file(api: Any, name: str, raw_dir: Path, log: Any) -> bool:
 def main(argv: list[str] | None = None) -> int:
     """CLI ``pd-scoring-ingest``: манифест (dry-run) или загрузка с ``--yes``."""
     parser = argparse.ArgumentParser(description="Download Home Credit dataset via Kaggle API.")
-    parser.add_argument("--yes", action="store_true", help="реально скачать (иначе только манифест)")
-    parser.add_argument("--raw-dir", default=None, help="куда класть CSV (по умолчанию <data_dir>/raw)")
+    parser.add_argument(
+        "--yes", action="store_true", help="реально скачать (иначе только манифест)"
+    )
+    parser.add_argument(
+        "--raw-dir", default=None, help="куда класть CSV (по умолчанию <data_dir>/raw)"
+    )
     args = parser.parse_args(argv)
 
     configure_logging()
@@ -105,7 +109,7 @@ def main(argv: list[str] | None = None) -> int:
         log.error(
             "kaggle_auth_failed",
             error=str(exc),
-            hint="задай KAGGLE_USERNAME/KAGGLE_KEY в .env и прими правила соревнования на kaggle.com",
+            hint="нужны KAGGLE_USERNAME/KAGGLE_KEY в .env и принятые правила соревнования",
         )
         return 1
 
