@@ -55,6 +55,14 @@ coverage.xml
 # --- Notebooks ---
 .ipynb_checkpoints/
 
+# --- Private planning / scaffolding (НЕ публикуем; держим локально) ---
+portfolio_prompt_plan_banks_kz.md
+cv_swap_document_ai.txt
+project1_scoring.txt
+project2_fraud_aml.txt
+project3_genai_rukz.txt
+project3_genai_rukz_1.txt
+
 # --- OS / editors ---
 .DS_Store
 Thumbs.db

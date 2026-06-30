@@ -19,7 +19,7 @@ dependencies = [
     "prometheus-client>=0.20",
 ]
 
-# Зависимости разделены на два extra (floor на 30.06.2026, синхр. с ../project1_scoring.txt):
+# Зависимости разделены на extra (floor-пины на 30.06.2026, новейшие совместимые версии):
 #   data — лёгкий слой данных/EDA (Фаза 1): polars/sklearn/pyarrow/kaggle. CI ставит его.
 #   ml   — тяжёлые модели/трекинг (Фаза 2+); включает data.
 [project.optional-dependencies]
