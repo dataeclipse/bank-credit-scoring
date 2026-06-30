@@ -144,6 +144,12 @@ ignore_missing_imports = true
 module = ["pandas", "pandas.*", "joblib", "joblib.*"]
 ignore_missing_imports = true
 
+# tracking.py подклассит mlflow.pyfunc.PythonModel (= Any при ignore_missing_imports). Какой код
+# type:ignore нужен — зависит от наличия mlflow (CI data-env vs explain-env) → не флагаем unused.
+[[tool.mypy.overrides]]
+module = "pd_scoring.models.tracking"
+warn_unused_ignores = false
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --cov=pd_scoring --cov-report=term-missing"
