@@ -37,11 +37,11 @@ jobs:
       - name: Mypy (strict)
         run: uv run mypy src
 
-      - name: Pytest (data, без ml)
-        run: uv run pytest -m "not ml"
+      - name: Pytest (data, без ml/explain)
+        run: uv run pytest -m "not ml and not explain"
 
   tests-ml:
-    name: tests (ml stack)
+    name: tests (ml + explain)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -54,8 +54,8 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "01-credit-scoring-pd/uv.lock"
 
-      - name: Sync (+ тяжёлый ML-стек)
-        run: uv sync --frozen --extra ml
+      - name: Sync (ML + explain: shap/fairlearn)
+        run: uv sync --frozen --extra explain
 
-      - name: Pytest (только ml)
-        run: uv run pytest -m ml
+      - name: Pytest (ml + explain)
+        run: uv run pytest -m "ml or explain"
